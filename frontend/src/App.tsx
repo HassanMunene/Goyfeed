@@ -7,6 +7,7 @@ import './App.css';
 
 // We will lazy load the pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
+const ExplorePage = lazy(() => import('./pages/ExplorePage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 
@@ -30,6 +31,7 @@ function App() {
 					{/* our protected routes wrapped within a layout */}
 					<Route path="/" element={<MainLayout />}>
 						<Route index element={<HomePage />} />
+						<Route path="/explore" element={<ExplorePage />} />
 						<Route path="/profile/:username" element={<ProfilePage />} />
 					</Route>
 				</Routes>
