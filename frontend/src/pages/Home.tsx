@@ -1,43 +1,16 @@
+import { useState } from "react";
+
+import Sidebar from "../components/sidebars/Sidebar";
+import RightSidebar from "../components/sidebars/RightSidebar";
+
 const Home = () => {
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+
     return (
         <div className="flex flex-row justify-start w-full">
             {/* Left Sidebar (hidden on mobile) */}
-            <div className="hidden md:block md:w-[30%] lg:w-[20%] relative">
-                {/* Sidebar Content */}
-                <div className="fixed h-screen p-4 w-[30%] lg:w-[20%] bg-gray-50 border-r">
-                    <div className="flex flex-col space-y-4">
-                        {/* Logo/Brand */}
-                        <div className="p-2 font-bold text-xl">SocialApp</div>
-                        
-                        {/* Navigation Links */}
-                        <a href="#" className="flex items-center p-2 rounded-lg hover:bg-gray-200">
-                            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                            </svg>
-                            Home
-                        </a>
-                        
-                        <a href="#" className="flex items-center p-2 rounded-lg hover:bg-gray-200">
-                            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                            Profile
-                        </a>
-                        
-                        {/* User Profile at Bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
-                            <div className="flex items-center">
-                                <img src="https://ui-avatars.com/api/?name=John+Doe" alt="John Doe profile" className="w-10 h-10 rounded-full mr-3" />
-                                <div>
-                                    <p className="font-semibold">John Doe</p>
-                                    <p className="text-sm text-gray-500">@johndoe</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <Sidebar />
             {/* Mobile Sliding Menu (hidden on desktop) */}
             <div className="md:hidden">
                 {/* Mobile menu button and sliding menu would go here */}
@@ -117,44 +90,9 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-
             {/* Right Sidebar (hidden on mobile) */}
-            <div className="hidden md:block md:w-[30%] lg:w-[20%]">
-                <div className="fixed h-screen p-4 w-[30%] lg:w-[20%] bg-gray-50 border-l">
-                    {/* Suggested Friends */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-lg mb-3">Suggested Friends</h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center">
-                                <img src="https://ui-avatars.com/api/?name=Alex+Johnson" alt="Alex Johnson profile" className="w-10 h-10 rounded-full mr-3" />
-                                <div className="flex-1">
-                                    <p className="font-medium">Alex Johnson</p>
-                                    <p className="text-xs text-gray-500">12 mutual friends</p>
-                                </div>
-                                <button className="text-blue-500 text-sm font-medium">Add</button>
-                            </div>
-                            <div className="flex items-center">
-                                <img src="https://ui-avatars.com/api/?name=Sarah+Williams" alt="Sarah Williams profile" className="w-10 h-10 rounded-full mr-3" />
-                                <div className="flex-1">
-                                    <p className="font-medium">Sarah Williams</p>
-                                    <p className="text-xs text-gray-500">8 mutual friends</p>
-                                </div>
-                                <button className="text-blue-500 text-sm font-medium">Add</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Trending Topics */}
-                    <div>
-                        <h3 className="font-semibold text-lg mb-3">Trending Topics</h3>
-                        <div className="space-y-2">
-                            <a href="#" className="block p-2 rounded-lg hover:bg-gray-200">#summer2023</a>
-                            <a href="#" className="block p-2 rounded-lg hover:bg-gray-200">#technews</a>
-                            <a href="#" className="block p-2 rounded-lg hover:bg-gray-200">#travel</a>
-                            <a href="#" className="block p-2 rounded-lg hover:bg-gray-200">#foodie</a>
-                        </div>
-                    </div>
-                </div>
+            <div className="hidden lg:block w-[30%]">
+                <RightSidebar />
             </div>
         </div>
     )
