@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Better mobile scrolling */
+html {
+    -webkit-overflow-scrolling: touch;
+}
+
 /* Hide scrollbar but keep functionality */
 .no-scrollbar {
     -ms-overflow-style: none;
@@ -16,4 +21,12 @@
 /* Smooth scrolling for main content */
 main {
     scroll-behavior: smooth;
+}
+
+@media screen and (max-width: 768px) {
+
+    input,
+    textarea {
+        font-size: 16px;
+    }
 }
