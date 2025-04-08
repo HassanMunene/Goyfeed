@@ -3,7 +3,6 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import MainLayout from './components/Layout/MainLayout';
-import Topbar from './components/topbar/Topbar';
 import './App.css';
 
 // We will lazy load the pages for better performance
@@ -24,7 +23,6 @@ function App() {
 		<BrowserRouter>
 			{/* show a our loading component while pages load */}
 			<Suspense fallback={<Loading />}>
-				<Topbar />
 				<Routes>
 					{/* our public login route */}
 					<Route path="/login" element={<LoginPage />} />

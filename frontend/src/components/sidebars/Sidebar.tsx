@@ -1,121 +1,56 @@
-import { Link, NavLink } from "react-router-dom";
-import {
-  Home,
-  Search,
-  Bell,
-  Mail,
-  Bookmark,
-  User,
-  Settings,
-  MoreHorizontal,
-} from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { Home, Search, Bell, Bookmark, User, MoreHorizontal, Feather } from "lucide-react";
 
 const Sidebar = () => {
-  return (
-    <div className="flex flex-col h-full p-4">
-      {/* X Logo */}
-      <Link to="/" className="p-3 rounded-full hover:bg-x-extraLightGray dark:hover:bg-x-gray/10 inline-block mb-2">
-        <svg
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          className="w-7 h-7 fill-current"
-        >
-          <g>
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-          </g>
-        </svg>
-      </Link>
+	return (
+		<div className="flex flex-col sticky h-screen top-0 overflow-y-auto">
+			<div className="flex flex-col h-full p-4">
+				<nav className="space-y-2 flex-1">
+					<NavItem to="/" icon={<Home size={22} />} text="Home" />
+					<NavItem to="/explore" icon={<Search size={22} />} text="Explore" />
+					<NavItem to="/notifications" icon={<Bell size={22} />} text="Notifications" />
+					<NavItem to="/bookmarks" icon={<Bookmark size={22} />} text="Bookmarks" />
+					<NavItem to="/profile" icon={<User size={22} />} text="Profile" />
+				</nav>
 
-      {/* Nav Items */}
-      <nav className="mb-4 mt-2">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `sidebar-item ${isActive ? "active" : ""}`
-          }
-        >
-          <Home className="sidebar-icon mr-4" />
-          <span>Home</span>
-        </NavLink>
+				{/* Post Button */}
+				<button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3 px-4 font-bold flex items-center justify-center mt-4 transition-colors">
+					<Feather className="mr-2" size={18} />
+					Post
+				</button>
 
-        <NavLink
-          to="/explore"
-          className={({ isActive }) =>
-            `sidebar-item ${isActive ? "active" : ""}`
-          }
-        >
-          <Search className="sidebar-icon mr-4" />
-          <span>Explore</span>
-        </NavLink>
-
-        <NavLink
-          to="/notifications"
-          className={({ isActive }) =>
-            `sidebar-item ${isActive ? "active" : ""}`
-          }
-        >
-          <Bell className="sidebar-icon mr-4" />
-          <span>Notifications</span>
-        </NavLink>
-
-        <NavLink
-          to="/messages"
-          className={({ isActive }) =>
-            `sidebar-item ${isActive ? "active" : ""}`
-          }
-        >
-          <Mail className="sidebar-icon mr-4" />
-          <span>Messages</span>
-        </NavLink>
-
-        <NavLink
-          to="/bookmarks"
-          className={({ isActive }) =>
-            `sidebar-item ${isActive ? "active" : ""}`
-          }
-        >
-          <Bookmark className="sidebar-icon mr-4" />
-          <span>Bookmarks</span>
-        </NavLink>
-
-        <NavLink
-          to="/profile"
-          className={({ isActive }) =>
-            `sidebar-item ${isActive ? "active" : ""}`
-          }
-        >
-          <User className="sidebar-icon mr-4" />
-          <span>Profile</span>
-        </NavLink>
-
-        <div className="sidebar-item">
-          <MoreHorizontal className="sidebar-icon mr-4" />
-          <span>More</span>
-        </div>
-      </nav>
-
-      {/* Post Button */}
-      <button className="font-bold">
-        Post
-      </button>
-
-      {/* Profile Button */}
-      <div className="mt-auto pt-2">
-        <button
-          className="flex items-center justify-between w-full p-3 rounded-full hover:bg-x-extraLightGray dark:hover:bg-x-gray/10"
-          type="button">
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
-            <div>
-              <div className="font-bold">Username</div>
-              <div className="text-x-gray">@username</div>
-            </div>
-          </div>
-          <MoreHorizontal className="h-5 w-5" />
-        </button>
-      </div>
-    </div>
-  );
+				{/* Profile Section */}
+				<div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+					<div className="flex items-center justify-between p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+						<div className="flex items-center">
+							<div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mr-3"></div>
+							<div>
+								<div className="font-bold">Username</div>
+								<div className="text-gray-500 text-sm">@username</div>
+							</div>
+						</div>
+						<MoreHorizontal className="text-gray-500" size={20} />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 };
+
+// Reusable NavItem component
+const NavItem = ({ to, icon, text }: { to: string; icon: React.ReactNode; text: string }) => (
+	<NavLink
+		to={to}
+		className={({ isActive }) =>
+			`flex items-center p-3 rounded-full transition-colors ${isActive
+				? "font-bold bg-blue-50 text-blue-500 dark:bg-gray-800 dark:text-blue-400"
+				: "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+			}`
+		}
+	>
+		<span className="mr-4">{icon}</span>
+		<span className="text-lg">{text}</span>
+	</NavLink>
+);
 
 export default Sidebar;
