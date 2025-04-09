@@ -5,7 +5,7 @@ interface TimelineProps {
     title: string;
     fetchPosts: () => Promise<PostProps[]> | PostProps[];
     headerAction?: React.ReactNode;
-    emptyMessage?: string;
+    emptyMessage?: string | React.ReactNode;
 }
 
 const Timeline = ({ title, fetchPosts, headerAction, emptyMessage = "No posts to display" }: TimelineProps) => {

@@ -34,7 +34,7 @@ function App() {
 						<Route index element={<HomePage />} />
 						<Route path="/explore" element={<ExplorePage />} />
 						<Route path="/notifications" element={<NotificationsPage />} />
-						<Route path="/profile/:username" element={<ProfilePage />} />
+						<Route path="/profile" element={<ProfilePage />} />
 					</Route>
 				</Routes>
 			</Suspense>
