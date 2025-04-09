@@ -82,6 +82,8 @@ export const resolvers = {
             const user = await prisma.user.create({
                 data: { username, email, password: hashedPassword, name }
             });
+            //token is generated to identify user in future requests
+            //this jwt contains userId encoded and signed by our secret key
             const token = sign({ userId: user.id }, process.env.APP_SECRET!);
             return { token, user };
         },
