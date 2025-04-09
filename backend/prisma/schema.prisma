@@ -12,3 +12,73 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// we will start with the user model our user model has a relationship with the post model,
+// like model and follow model
+model User {
+  id        String    @id @default(uuid())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  name      String?
+  avatar    String?
+  bio       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  posts     Post[]
+  likes     Like[]
+  followers Follow[]  @relation("Follower")
+  following Follow[]  @relation("Following")
+  Comment   Comment[]
+}
+
+// we now go to the post model and we link a post to a user using authorId
+model Post {
+  id        String    @id @default(uuid())
+  content   String
+  image     String?
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  likes     Like[]
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Now we go to the comment model. we can see who made the comment by relationship to User
+// and we can see which post the comment belongs to by relationship to Post.
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Now we do the Like model. we can know who like the post and also which post was liked.
+model Like {
+  id        String   @id @default(uuid())
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+// Now we head up to the follow model.
+// we can see who is following who by relationship to User.
+// @@unique([followerId, followingId]) ensures a user can't follow the same person more than once.
+model Follow {
+  id          String   @id @default(uuid())
+  follower    User     @relation("Follower", fields: [followerId], references: [id])
+  followerId  String
+  following   User     @relation("Following", fields: [followingId], references: [id])
+  followingId String
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
