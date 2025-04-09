@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Search, Bell, Bookmark, User, MoreHorizontal, Feather, Power } from "lucide-react";
+import { Home, Search, Bell, Bookmark, User, MoreHorizontal, Feather, Power, Heart } from "lucide-react";
 
 const Sidebar = () => {
 	const popupRef = useRef<HTMLDivElement>(null);
@@ -40,7 +40,7 @@ const Sidebar = () => {
 					<NavItem to="/" icon={<Home size={22} />} text="Home" />
 					<NavItem to="/explore" icon={<Search size={22} />} text="Explore" />
 					<NavItem to="/notifications" icon={<Bell size={22} />} text="Notifications" />
-					<NavItem to="/bookmarks" icon={<Bookmark size={22} />} text="Bookmarks" />
+					<NavItem to="/liked_posts" icon={<Heart size={22} />} text="Liked Posts" />
 					<NavItem to="/profile" icon={<User size={22} />} text="Profile" />
 				</nav>
 				{/* Post Button */}

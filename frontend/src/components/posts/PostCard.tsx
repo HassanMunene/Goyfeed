@@ -14,14 +14,24 @@ export interface PostProps {
         verified?: boolean;
     };
     content: string;
+    timestamp: Date;
+    isLiked: boolean;
+    media?: { type: string; url: string }[];
     image?: string;
     createdAt: string | Date;
     metrics: {
         replies: number;
         likes: number;
     };
+    author: {
+        name: string;
+        avatar: string;
+        handle: string;
+        verified?: boolean;
+    };
     onDelete?: () => void;
 }
+
 
 const PostCard = ({ user, content, image, createdAt, metrics }: PostProps) => {
     const [isLiked, setIsLiked] = useState(false);
@@ -90,7 +100,7 @@ const PostCard = ({ user, content, image, createdAt, metrics }: PostProps) => {
 
                     {/* Post Image (if any) */}
                     {image && (
-                        <div className="mb-3 rounded-2xl overflow-hidden border border-x-border dark:border-x-border">
+                        <div className="mb-3 rounded-2xl overflow-hidden border border-x-border">
                             <img src={image} alt="Tweet media" className="w-full h-auto" />
                         </div>
                     )}
