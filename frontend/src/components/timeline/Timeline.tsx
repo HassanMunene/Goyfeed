@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+
+import NewPostForm from "../posts/NewPostForm";
 import PostCard, { PostProps } from "../posts/PostCard";
 import { Loader2, RefreshCw } from "lucide-react";
+import { createPost } from "../lib/mockData";
 
 interface TimelineProps {
   title?: string;
@@ -10,15 +13,16 @@ interface TimelineProps {
   onPostDelete?: (postId: string) => void;
 }
 
-const Timeline = ({ 
-  title, 
-  fetchPosts, 
-  headerAction, 
+const Timeline = ({
+  title,
+  fetchPosts,
+  headerAction,
   emptyMessage = "No posts to display",
-  onPostDelete 
+  onPostDelete
 }: TimelineProps) => {
   const [posts, setPosts] = useState<PostProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -66,6 +70,25 @@ const Timeline = ({
     loadPosts();
   }, [loadPosts]);
 
+  const handleSubmitPost = useCallback(async (content: string, image?: File) => {
+    try {
+      // In a real app, we would upload the image first and get a URL
+      let imageUrl;
+      if (image) {
+        // Mock image upload by just using the local object URL
+        imageUrl = URL.createObjectURL(image);
+      }
+
+      // Create the post
+      await createPost("1", content, imageUrl);
+
+      // Force a refresh of the timeline
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to make a post:", error);
+    }
+  }, []);
+
   const handleRefresh = () => {
     setPage(1);
     loadPosts(true);
@@ -84,21 +107,21 @@ const Timeline = ({
           {title && <h1 className="text-xl font-bold">{title}</h1>}
           <div className="flex items-center gap-2">
             {headerAction}
-            <button 
+            <button
               onClick={handleRefresh}
               disabled={refreshing}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Refresh"
             >
-              <RefreshCw 
-                size={18} 
-                className={`${refreshing ? 'animate-spin' : ''}`} 
+              <RefreshCw
+                size={18}
+                className={`${refreshing ? 'animate-spin' : ''}`}
               />
             </button>
           </div>
         </div>
       </div>
-
+      <NewPostForm onSubmit={handleSubmitPost} />
       {/* Timeline Content */}
       <div className="divide-y divide-gray-200">
         {loading && !refreshing ? (
@@ -108,7 +131,7 @@ const Timeline = ({
         ) : error ? (
           <div className="p-8 text-center">
             <p className="text-red-500 mb-4">{error}</p>
-            <button 
+            <button
               onClick={() => loadPosts(true)}
               className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
             >
@@ -126,13 +149,13 @@ const Timeline = ({
         ) : (
           <>
             {posts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                {...post} 
+              <PostCard
+                key={post.id}
+                {...post}
                 onDelete={onPostDelete ? () => handleDeletePost(post.id) : undefined}
               />
             ))}
-            
+
             {/* Infinite scroll loader */}
             <div ref={loadingRef} className="flex justify-center p-4">
               <Loader2 className="w-6 h-6 animate-spin text-gray-400" />

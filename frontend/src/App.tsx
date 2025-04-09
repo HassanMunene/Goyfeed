@@ -12,6 +12,7 @@ const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const LikedPostsPage = lazy(() => import('./pages/LikedPosts'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
 
 // we will implement a simple loading logic
 
@@ -28,7 +29,8 @@ function App() {
 			<Suspense fallback={<Loading />}>
 				<Routes>
 					{/* our public login route */}
-					<Route path="/login" element={<LoginPage />} />
+					<Route path="/auth/login" element={<LoginPage />} />
+					<Route path="/auth/signup" element={<SignupPage />} />
 
 					{/* our protected routes wrapped within a layout */}
 					<Route path="/" element={<MainLayout />}>

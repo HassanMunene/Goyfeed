@@ -1,37 +1,40 @@
-import { useState } from "react";
-import { X as XIcon, Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X as XIcon, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface LoginFormProps {
   onSubmit: (values: { username: string; password: string }) => void;
   onClose?: () => void;
+  isLoading?: boolean;
 }
 
-const LoginForm = ({ onSubmit, onClose }: LoginFormProps) => {
+const LoginForm = ({ onSubmit, onClose, isLoading = false }: LoginFormProps) => {
   const [formValues, setFormValues] = useState({ username: "", password: "" });
   const [formErrors, setFormErrors] = useState<{ username?: string; password?: string }>({});
-  const [touched, setTouched] = useState<{ username: boolean; password: boolean }>({
-    username: false,
-    password: false,
-  });
+  const [touched, setTouched] = useState({ username: false, password: false });
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const validate = () => {
     const errors: { username?: string; password?: string } = {};
-    if (!formValues.username.trim()) errors.username = "Required";
-    if (!formValues.password.trim()) errors.password = "Required";
+    if (!formValues.username.trim()) errors.username = "Username is required";
+    if (!formValues.password.trim()) errors.password = "Password is required";
     return errors;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
+    setFormValues(prev => ({ ...prev, [name]: value }));
+    if (touched[name as keyof typeof touched]) {
+      setFormErrors(prev => ({ ...prev, [name]: value.trim() ? undefined : `${name} is required` }));
+    }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
+    setTouched(prev => ({ ...prev, [name]: true }));
+    validate();
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,33 +44,29 @@ const LoginForm = ({ onSubmit, onClose }: LoginFormProps) => {
     setTouched({ username: true, password: true });
 
     if (Object.keys(errors).length === 0) {
-      setIsSubmitting(true);
-      try {
-        await onSubmit(formValues);
-      } finally {
-        setIsSubmitting(false);
-      }
+      onSubmit(formValues);
     }
   };
 
   return (
-    <div className="bg-white p-4 rounded-2xl w-full max-w-md mx-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+      <div className="flex justify-between items-center mb-8">
         <div className="w-8" />
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#4f46e5] to-[#e946b8] bg-clip-text text-transparent">
+          Welcome back
+        </h1>
         {onClose && (
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center"
+            className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
             aria-label="Close"
           >
-            <XIcon size={18} />
+            <XIcon size={20} className="text-gray-500" />
           </button>
         )}
       </div>
 
-      <h1 className="text-3xl font-bold mb-6">Sign in to Goy-Feed</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <div className="relative">
             <input
@@ -77,16 +76,24 @@ const LoginForm = ({ onSubmit, onClose }: LoginFormProps) => {
               value={formValues.username}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`w-full px-4 py-3 bg-transparent border ${
+              onFocus={() => setIsFocused(true)}
+              className={`w-full px-4 py-3 bg-gray-50 border-2 ${
                 touched.username && formErrors.username
-                  ? "border-red-500"
-                  : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-1 focus:ring-x-blue`}
-              placeholder="Phone, email, or username"
+                  ? "border-red-300 focus:border-red-300"
+                  : "border-gray-200 focus:border-[#4f46e5]"
+              } rounded-xl focus:outline-none focus:ring-0 transition-all`}
+              placeholder="Username or email"
+              autoComplete="username"
             />
           </div>
           {touched.username && formErrors.username && (
-            <div className="text-red-500 text-sm mt-1">{formErrors.username}</div>
+            <motion.div 
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-500 text-sm mt-1 px-1"
+            >
+              {formErrors.username}
+            </motion.div>
           )}
         </div>
 
@@ -99,42 +106,73 @@ const LoginForm = ({ onSubmit, onClose }: LoginFormProps) => {
               value={formValues.password}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`w-full px-4 py-3 bg-transparent border ${
+              onFocus={() => setIsFocused(true)}
+              className={`w-full px-4 py-3 bg-gray-50 border-2 ${
                 touched.password && formErrors.password
-                  ? "border-red-500"
-                  : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-1 focus:ring-x-blue pr-10`}
+                  ? "border-red-300 focus:border-red-300"
+                  : "border-gray-200 focus:border-[#4f46e5]"
+              } rounded-xl focus:outline-none focus:ring-0 transition-all pr-12`}
               placeholder="Password"
+              autoComplete="current-password"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
           {touched.password && formErrors.password && (
-            <div className="text-red-500 text-sm mt-1">{formErrors.password}</div>
+            <motion.div 
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-500 text-sm mt-1 px-1"
+            >
+              {formErrors.password}
+            </motion.div>
           )}
         </div>
 
-        <button type="submit" className="mt-4" disabled={isSubmitting}>
-          Sign In
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-3 px-4 rounded-xl font-bold text-white transition-all ${
+              isLoading
+                ? "bg-[#c7d2fe] cursor-not-allowed"
+                : "bg-gradient-to-r from-[#4f46e5] to-[#e946b8] hover:from-[#4338ca] hover:to-[#d433a6] hover:shadow-lg"
+            } flex items-center justify-center`}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin mr-2" size={18} />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </button>
+        </div>
+
+        <div className="text-center">
+          <Link 
+            to="/auth/forgot-password" 
+            className="text-sm text-gray-500 hover:text-[#4f46e5] transition-colors"
+          >
+            Forgot password?
+          </Link>
+        </div>
       </form>
 
-      <div className="mt-4">
-        <button>
-          Forgot password?
-        </button>
-      </div>
-
-      <div className="mt-8 text-center text-gray-600">
-        Don't have an account?{" "}
-        <Link to="/auth/signup" className="text-x-blue hover:underline">
-          Sign up
+      <div className="mt-8 pt-6 border-t border-gray-100 text-center text-gray-500 text-sm">
+        New to Goy-Feed?{" "}
+        <Link 
+          to="/auth/signup" 
+          className="text-[#4f46e5] hover:text-[#4338ca] font-medium transition-colors"
+        >
+          Create account
         </Link>
       </div>
     </div>

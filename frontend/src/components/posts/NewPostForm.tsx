@@ -67,7 +67,7 @@ const NewPostForm = ({ onSubmit, placeholder = "What's on your mind?", buttonTex
     };
 
     return (
-        <div className="border-b border-x-border dark:border-x-border p-4">
+        <div className="border-b border-x-border p-4">
             {showReplyInfo && replyingTo && (
                 <div className="text-x-gray text-sm mb-2 pl-12">
                     Replying to <span className="text-x-blue">@{replyingTo}</span>
@@ -89,7 +89,7 @@ const NewPostForm = ({ onSubmit, placeholder = "What's on your mind?", buttonTex
                         />
 
                         {imagePreview && (
-                            <div className="relative mb-3 rounded-2xl overflow-hidden border border-x-border dark:border-x-border">
+                            <div className="relative mb-3 rounded-2xl overflow-hidden border border-x-border">
                                 <img
                                     src={imagePreview}
                                     alt="Tweet preview"
@@ -105,7 +105,7 @@ const NewPostForm = ({ onSubmit, placeholder = "What's on your mind?", buttonTex
                             </div>
                         )}
 
-                        <div className="flex justify-between items-center pt-2 border-t border-x-border dark:border-x-border">
+                        <div className="flex justify-between items-center pt-2 border-t border-x-border">
                             <div className="flex space-x-1">
                                 <input
                                     type="file"
