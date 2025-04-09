@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import MainLayout from './components/Layout/MainLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import Loading from './components/Loading';
 import './App.css';
 
 // We will lazy load the pages for better performance
@@ -15,13 +16,6 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
 
-// we will implement a simple loading logic
-
-const Loading = () => {
-	return (
-		<div className="text-center p-8">Loading...</div>
-	)
-}
 
 function App() {
 	return (
