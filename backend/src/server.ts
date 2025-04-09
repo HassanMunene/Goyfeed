@@ -1,5 +1,7 @@
 import express from "express";
+import type { Application } from "express";
 import { ApolloServer } from "apollo-server-express";
+
 import { typeDefs } from "./graphql/schema";
 import { resolvers } from "./graphql/resolvers";
 import { PrismaClient } from "@prisma/client";
@@ -12,7 +14,7 @@ dotenv.config();
 // initialize prisma client
 const prisma = new PrismaClient();
 // create an express app
-const app = express();
+const app = express() as any;
 
 // enable cross-origin resource sharing. nd accept requests from different domains (useful for frontend → backend calls).
 app.use(cors());
@@ -24,10 +26,14 @@ app.use(express.json());
 // the token is provided in the form of Bearer <token>. we will strip the Bearer and remain with actual token
 // the secret key is used to sign an verify the JWT. exclamation mark (!) is a TypeScript non-null assertion operator, meaning you're telling TypeScript that APP_SECRET will definitely be available i.e not undefined.
 // if token is valid the verifcation passes and return a decoded payload of user info
-const getUser = (token: string) => {
+interface JwtPayload {
+    userId: string;
+}
+
+const getUser = (token: string): JwtPayload | null => {
     try {
         if (token) {
-            return jwt.verify(token.replace('Bearer ', ''), process.env.APP_SECRET!);
+            return jwt.verify(token.replace('Bearer ', ''), process.env.APP_SECRET!) as JwtPayload;
         }
         return null;
     } catch (error) {
