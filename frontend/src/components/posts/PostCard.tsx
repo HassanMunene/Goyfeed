@@ -20,6 +20,7 @@ export interface PostProps {
         replies: number;
         likes: number;
     };
+    onDelete?: () => void;
 }
 
 const PostCard = ({ user, content, image, createdAt, metrics }: PostProps) => {
