@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import MainLayout from './components/Layout/MainLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 // We will lazy load the pages for better performance
@@ -33,7 +34,7 @@ function App() {
 					<Route path="/auth/signup" element={<SignupPage />} />
 
 					{/* our protected routes wrapped within a layout */}
-					<Route path="/" element={<MainLayout />}>
+					<Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
 						<Route index element={<HomePage />} />
 						<Route path="/explore" element={<ExplorePage />} />
 						<Route path="/notifications" element={<NotificationsPage />} />
