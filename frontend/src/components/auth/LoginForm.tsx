@@ -5,25 +5,15 @@ import { motion } from "framer-motion";
 
 interface LoginFormProps {
 	onSubmit: (values: { username: string; password: string }) => void;
-	onClose?: () => void;
 	isLoading?: boolean;
 }
 
-const LoginForm = ({ onSubmit, onClose, isLoading = false }: LoginFormProps) => {
-	const [formValues, setFormValues] = useState({
-		username: "",
-		password: ""
-	});
+const LoginForm = ({ onSubmit, isLoading = false }: LoginFormProps) => {
+	const [formValues, setFormValues] = useState({ username: "", password: "" });
 
-	const [formErrors, setFormErrors] = useState<{
-		username?: string;
-		password?: string
-	}>({});
+	const [formErrors, setFormErrors] = useState<{ username?: string; password?: string}>({});
 
-	const [touched, setTouched] = useState({
-		username: false,
-		password: false
-	});
+	const [touched, setTouched] = useState({ username: false, password: false});
 
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -65,34 +55,15 @@ const LoginForm = ({ onSubmit, onClose, isLoading = false }: LoginFormProps) => 
 	return (
 		<div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 w-full max-w-md">
 			{/* Header Section */}
-			<div className="flex justify-between items-start mb-8">
-				<div className="w-8" />
-				<div className="text-center">
-					<motion.h1
-						initial={{ opacity: 0, y: -10 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="text-3xl font-bold text-gray-900"
-					>
+			<div className="flex items-center mb-8">
+				<div className="text-center w-full">
+					<motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-3xl font-bold text-gray-900">
 						Welcome back to <span className="bg-gradient-to-r from-[#4f46e5] to-[#e946b8] bg-clip-text text-transparent">GoyFeed</span>
 					</motion.h1>
-					<motion.p
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.1 }}
-						className="text-gray-500"
-					>
-						The community awaits your return
+					<motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-gray-500">
+						We are happy to have you back!
 					</motion.p>
 				</div>
-				{onClose && (
-					<button
-						onClick={onClose}
-						className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
-						aria-label="Close"
-					>
-						<XIcon size={20} className="text-gray-500" />
-					</button>
-				)}
 			</div>
 
 			{/* Form Section */}
@@ -107,20 +78,13 @@ const LoginForm = ({ onSubmit, onClose, isLoading = false }: LoginFormProps) => 
 							value={formValues.username}
 							onChange={handleChange}
 							onBlur={handleBlur}
-							className={`w-full px-4 py-3 bg-gray-50 ${touched.username && formErrors.username
-									? "border-red-300 focus:border-red-300"
-									: "border-gray-200 focus:border-[#4f46e5]"
-								} rounded-xl focus:outline-none focus:ring-0 transition-all`}
-							placeholder="Username or email"
+							className={`w-full px-4 py-3 bg-gray-50 border-2 ${touched.username && formErrors.username ? "border-red-300 focus:border-red-300" : "border-gray-300 focus:border-[#4f46e5]"} rounded-xl focus:outline-none focus:ring-0 transition-all`}
+							placeholder="Email"
 							autoComplete="username"
 						/>
 					</div>
 					{touched.username && formErrors.username && (
-						<motion.div
-							initial={{ opacity: 0, y: -5 }}
-							animate={{ opacity: 1, y: 0 }}
-							className="text-red-500 text-sm mt-1 px-1 flex items-center"
-						>
+						<motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-sm mt-1 px-1 flex items-center">
 							<svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
 								<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
 							</svg>
@@ -139,10 +103,7 @@ const LoginForm = ({ onSubmit, onClose, isLoading = false }: LoginFormProps) => 
 							value={formValues.password}
 							onChange={handleChange}
 							onBlur={handleBlur}
-							className={`w-full px-4 py-3 bg-gray-50 border-2 ${touched.password && formErrors.password
-									? "border-red-300 focus:border-red-300"
-									: "border-gray-200 focus:border-[#4f46e5]"
-								} rounded-xl focus:outline-none focus:ring-0 transition-all pr-12`}
+							className={`w-full px-4 py-3 bg-gray-50 border-2 ${touched.password && formErrors.password ? "border-red-300 focus:border-red-300" : "border-gray-300 focus:border-[#4f46e5]"} rounded-xl focus:outline-none focus:ring-0 transition-all pr-12`}
 							placeholder="Password"
 							autoComplete="current-password"
 						/>
@@ -156,11 +117,7 @@ const LoginForm = ({ onSubmit, onClose, isLoading = false }: LoginFormProps) => 
 						</button>
 					</div>
 					{touched.password && formErrors.password && (
-						<motion.div
-							initial={{ opacity: 0, y: -5 }}
-							animate={{ opacity: 1, y: 0 }}
-							className="text-red-500 text-sm mt-1 px-1 flex items-center"
-						>
+						<motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-sm mt-1 px-1 flex items-center">
 							<svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
 								<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
 							</svg>
