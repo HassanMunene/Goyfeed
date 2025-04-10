@@ -1,12 +1,18 @@
 import { Navigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
+import Loading from "./Loading";
 
 // will be used to restrict access to certain parts of the Goy-Feed based on authentication status
-const ProtectedRoute = ({ children}: { children: React.ReactNode}) => {
-    const { isAuthenticated } = useAuth();
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    const { isAuthenticated, loading } = useAuth();
 
-    if(!isAuthenticated) {
+    if (loading) {
+        return <><Loading /></>;
+    }
+    console.log("statetetetetet of isAuth", isAuthenticated);
+
+    if (!isAuthenticated) {
         return <Navigate to="/auth/login" replace />;
     }
 
