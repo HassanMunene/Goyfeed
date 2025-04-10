@@ -1,29 +1,31 @@
-import { useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
-import { Home, Search, Bell, Bookmark, User, MoreHorizontal, Feather, Power, Heart } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { Home, Search, Bell, User, MoreHorizontal, Feather, Power, Heart } from "lucide-react";
+
+import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = () => {
-	const popupRef = useRef<HTMLDivElement>(null);
-	const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+	const { logout } = useAuth();
+	const navigate = useNavigate();
 
-	//close the logout popup when we click outside
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-				setShowLogoutPopup(false);
-			}
-		};
+	const handleLogoutClick = async () => {
+		const result = await Swal.fire({
+			title: "Are you sure?",
+			text: "You will be logged out of your account.",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#d33",
+			cancelButtonColor: "#3085d6",
+			confirmButtonText: "Yes, log out",
+			cancelButtonText: "Cancel",
+		});
 
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, []);
-
-	const handleLogoutClick = () => {
-		console.log('Logging out...');
-		setShowLogoutPopup(false);
-	}
+		if (result.isConfirmed) {
+			logout();
+			navigate("/auth/login");
+			Swal.fire("Logged out!", "You have been successfully logged out.", "success");
+		}
+	};
 
 	return (
 		<div className="flex flex-col sticky h-screen top-0 border-r border-[#f0f2f5] overflow-hidden">
@@ -53,7 +55,7 @@ const Sidebar = () => {
 			{/* Profile Section */}
 			<div className="mt-auto p-4 border-t border-[#f0f2f5] relative">
 				<button
-					onClick={() => setShowLogoutPopup(!showLogoutPopup)}
+					onClick={() => console.log("clicked")}
 					className="flex items-center justify-between w-full p-3 rounded-full hover:bg-[#f8f9fa] transition-colors group"
 				>
 					<div className="flex items-center">
@@ -67,16 +69,19 @@ const Sidebar = () => {
 					</div>
 					<MoreHorizontal className="text-[#65676b] group-hover:text-[#4f46e5]" size={20} />
 				</button>
+
+				{/* Logout button section */}
+				<button
+					onClick={handleLogoutClick}
+					className="mx-3 mt-3 bg-red-50 mb-4 flex items-center p-3 rounded-xl text-red-600 hover:text-red-700bg-red-50 hover:bg-red-100 border border-red-100 hover:border-red-200 transition-all duration-200 ease-in-out group shadow-sm hover:shadow-red-100"
+				>
+					<Power
+						size={20}
+						className="mr-3 text-red-500 group-hover:text-red-600 transition-transform group-hover:scale-105"
+					/>
+					<span className="text-[15px] font-semibold">Log out</span>
+				</button>
 			</div>
-			{/* Logout Popup */}
-			{showLogoutPopup && (
-				<div ref={popupRef} className="absolute bottom-21 left-4 bg-white shadow-lg rounded-xl p-2 w-[calc(100%-32px)] border border-gray-100 z-50">
-					<button onClick={handleLogoutClick} className="flex items-center w-full p-3 rounded-lg hover:bg-[#f0f7ff] text-red-500">
-						<Power className="mr-3" size={18} />
-						<span className="text-[#4b5563]">Log out</span>
-					</button>
-				</div>
-			)}
 		</div>
 	);
 };

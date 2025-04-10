@@ -51,18 +51,19 @@ const SignupPage = () => {
 				}),
 			});
 
+			const { data, errors } = await response.json();
 			const result = await response.json();
 
-			if (result.errors) {
+			if (errors) {
 				console.log("Error making sign up request", result.errors)
 				setSignupError(result.errors[0].message);
-			} else {
-				const token = result.data.signup.token;
-				login(token);
-				setSuccessMessage("Signup successful! Redirecting...");
-				await new Promise((resolve) => setTimeout(resolve, 1500));
-				navigate("/");
 			}
+			const { token, user } = data.signup;
+
+			login(token, user);
+			setSuccessMessage("Signup successful! Redirecting...");
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+			navigate("/");
 		} catch (error) {
 			console.error(error);
 			setSignupError("Registration failed. Please try again.");
