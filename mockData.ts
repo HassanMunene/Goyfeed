@@ -1,4 +1,4 @@
-import { PostProps } from "../posts/PostCard";
+import { PostProps } from "./frontend/src/components/posts/PostCard";
 
 // Mock Users data
 export const USERS = [
@@ -171,7 +171,7 @@ export const createPost = ( userId: string, content: string, image?: string ): P
                 user,
                 content,
                 image,
-                createdAt: new Date(),
+                createdAt: new Date().toISOString(),
                 metrics: {
                     replies: 0,
                     likes: 0,

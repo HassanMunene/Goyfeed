@@ -86,8 +86,8 @@ const ProfileTimeline = ({ title, fetchPosts, emptyMessage = "No posts to displa
                         return (
                             <PostCard
                                 key={post.id}
-                                data={post}
-                                onDelete={onPostDelete ? () => onPostDelete(post.id) : undefined} id={""}
+                                {...post}
+                                onDelete={onPostDelete ? () => onPostDelete(post.id) : undefined}
                             />
                         );
                     })
