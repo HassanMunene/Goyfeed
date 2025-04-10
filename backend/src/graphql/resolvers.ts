@@ -49,7 +49,43 @@ export const resolvers = {
             return prisma.user.findUnique({ where: { id: userId } });
         },
         getUser: async (_: unknown, { username }: { username: string }) => {
-            return prisma.user.findUnique({ where: { username } });
+            try {
+                const user = await prisma.user.findUnique({
+                    where: { username },
+                    include: {
+                        posts: {
+                            orderBy: { createdAt: 'desc' },
+                            include: {
+                                likes: true,
+                                comments: true
+                            }
+                        },
+                        _count: {
+                            select: {
+                                followers: true,
+                                following: true
+                            }
+                        }
+                    }
+                });
+
+                if (!user) throw new Error('User not found');
+
+                return {
+                    ...user,
+                    followersCount: user._count.followers,
+                    followingCount: user._count.following,
+                    posts: user.posts.map(post => ({
+                        ...post,
+                        likesCount: post.likes.length,
+                        commentsCount: post.comments.length
+                    }))
+                };
+
+            } catch (error) {
+                console.error('Error fetching user:', error);
+                throw new Error('Failed to fetch user');
+            }
         },
         getPosts: async (_: unknown, __: unknown, { userId }: Context) => {
             try {

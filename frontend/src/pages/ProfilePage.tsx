@@ -1,39 +1,200 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarDays, Link as LinkIcon, MapPin, Mail, MoreHorizontal } from "lucide-react";
 import Timeline from "../components/timeline/Timeline";
-import { fetchUserPosts, fetchUserProfile, USERS } from "../components/lib/mockData";
+import { createAvatar } from '@dicebear/core';
+import { identicon } from '@dicebear/collection';
+
+interface User {
+    id: string;
+    username: string;
+    name: string;
+    avatar: string;
+    coverPhoto?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    verified: boolean;
+    joinDate: string;
+    followersCount: number;
+    followingCount: number;
+    posts: Post[];
+}
+
+interface Post {
+    id: string;
+    content: string;
+    image?: string;
+    likesCount: number;
+    commentsCount: number;
+    createdAt: string;
+}
 
 const ProfilePage = () => {
-    const { username = USERS[0].username } = useParams<{ username: string }>();
-    const [user, setUser] = useState<any>(null);
+    const { username } = useParams<{ username: string }>();
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isFollowing, setIsFollowing] = useState(false);
     const [activeTab, setActiveTab] = useState('posts');
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+    const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
 
     useEffect(() => {
-        const loadUserProfile = async () => {
+        const fetchUserProfile = async () => {
             try {
                 setLoading(true);
-                const userData = await fetchUserProfile(username);
-                setUser(userData);
                 setError(null);
+
+                const query = `
+          query GetUser($username: String!) {
+            getUser(username: $username) {
+              id
+              username
+              email
+              name
+              avatar
+              bio
+              posts {
+                id
+                content
+                image
+                createdAt
+              }
+            }
+          }
+        `;
+
+                const response = await fetch(graphqlEndpoint, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify({
+                        query,
+                        variables: { username },
+                    }),
+                });
+
+                const result = await response.json();
+
+                console.log("ajajajaja", result);
+
+                if (result.errors) {
+                    throw new Error(result.errors[0].message);
+                }
+
+                if (!result.data?.getUser) {
+                    throw new Error("User not found");
+                }
+
+                setUser(result.data.getUser);
             } catch (err) {
-                setError("Failed to load user profile");
-                console.error(err);
+                console.error("Failed to fetch user:", err);
+                setError(err instanceof Error ? err.message : "Failed to load profile");
             } finally {
                 setLoading(false);
             }
         };
-        loadUserProfile();
+
+        if (username) {
+            fetchUserProfile();
+        }
     }, [username]);
 
-    const fetchPosts = useCallback(() => fetchUserPosts(username), [username]);
+    useEffect(() => {
+        if (user) {
+            const avatarUrl = createAvatar(identicon, { seed: user.name }).toDataUri();
+            setAvatarUrl(avatarUrl);
+        }
+    }, [user]);
 
-    const toggleFollow = () => {
-        setIsFollowing(!isFollowing);
-        // API call would go here
+    const fetchUserPosts = async () => {
+        if (!user) return [];
+
+        try {
+            const query = `
+        query GetUserPosts($userId: ID!) {
+          getPost(id: $userId) {
+            id
+            content
+            image
+            createdAt
+          }
+        }
+      `;
+
+            const response = await fetch(graphqlEndpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                    query,
+                    variables: { userId: user.id },
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.errors) {
+                throw new Error(result.errors[0].message);
+            }
+
+            return result.data?.getUserPosts || [];
+        } catch (err) {
+            console.error("Failed to fetch posts:", err);
+            setError("Failed to load posts");
+            return [];
+        }
+    };
+
+    const toggleFollow = async () => {
+        if (!user) return;
+
+        try {
+            const mutation = isFollowing ? `
+        mutation Unfollow($userId: ID!) {
+          unfollow(userId: $userId)
+        }
+      ` : `
+        mutation Follow($userId: ID!) {
+          follow(userId: $userId) {
+            id
+          }
+        }
+      `;
+
+            const response = await fetch(graphqlEndpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { userId: user.id },
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.errors) {
+                throw new Error(result.errors[0].message);
+            }
+
+            setIsFollowing(!isFollowing);
+            // Update followers count optimistically
+            setUser(prev => prev ? {
+                ...prev,
+                followersCount: isFollowing ? prev.followersCount - 1 : prev.followersCount + 1
+            } : null);
+        } catch (err) {
+            console.error("Failed to toggle follow:", err);
+        }
     };
 
     if (loading) return (
@@ -56,9 +217,9 @@ const ProfilePage = () => {
             {/* Cover Photo */}
             <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
                 {user.coverPhoto && (
-                    <img 
-                        src={user.coverPhoto} 
-                        alt="Cover" 
+                    <img
+                        src={user.coverPhoto}
+                        alt="Cover"
                         className="w-full h-full object-cover"
                     />
                 )}
@@ -69,7 +230,7 @@ const ProfilePage = () => {
                 {/* Avatar */}
                 <div className="absolute -top-16 left-4 border-4 border-white rounded-full">
                     <img
-                        src={user.avatar}
+                        src={avatarUrl || user.avatar}
                         alt={user.name}
                         className="w-32 h-32 rounded-full object-cover"
                     />
@@ -85,11 +246,10 @@ const ProfilePage = () => {
                     </button>
                     <button
                         onClick={toggleFollow}
-                        className={`px-4 py-1.5 rounded-full font-bold ${
-                            isFollowing 
-                                ? "bg-white text-black border border-gray-300 hover:border-red-300 hover:text-red-500"
-                                : "bg-black text-white hover:bg-gray-800"
-                        }`}
+                        className={`px-4 py-1.5 rounded-full font-bold ${isFollowing
+                            ? "bg-white text-black border border-gray-300 hover:border-red-300 hover:text-red-500"
+                            : "bg-black text-white hover:bg-gray-800"
+                            }`}
                     >
                         {isFollowing ? "Following" : "Follow"}
                     </button>
@@ -118,24 +278,32 @@ const ProfilePage = () => {
                         </div>
                     )}
                     {user.website && (
-                        <a href={user.website} className="flex items-center text-blue-500 hover:underline">
+                        <a
+                            href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-500 hover:underline"
+                        >
                             <LinkIcon size={16} className="mr-1" />
                             <span>{user.website.replace(/(^\w+:|^)\/\//, '')}</span>
                         </a>
                     )}
                     <div className="flex items-center">
                         <CalendarDays size={16} className="mr-1" />
-                        <span>Joined {new Date(user.joinDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                        <span>Joined {new Date(user.joinDate).toLocaleDateString('en-US', {
+                            month: 'long',
+                            year: 'numeric'
+                        })}</span>
                     </div>
                 </div>
 
                 <div className="flex gap-5">
                     <div className="hover:underline cursor-pointer">
-                        <span className="font-bold">{user.following.toLocaleString()}</span>
+                        <span className="font-bold">follow count</span>
                         <span className="text-gray-500"> Following</span>
                     </div>
                     <div className="hover:underline cursor-pointer">
-                        <span className="font-bold">{user.followers.toLocaleString()}</span>
+                        <span className="font-bold">follower count</span>
                         <span className="text-gray-500"> Followers</span>
                     </div>
                 </div>
@@ -148,11 +316,10 @@ const ProfilePage = () => {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`flex-1 py-4 font-medium text-sm ${
-                                activeTab === tab
-                                    ? 'text-black border-b-2 border-blue-500'
-                                    : 'text-gray-500 hover:bg-gray-50'
-                            }`}
+                            className={`flex-1 py-4 font-medium text-sm ${activeTab === tab
+                                ? 'text-black border-b-2 border-blue-500'
+                                : 'text-gray-500 hover:bg-gray-50'
+                                }`}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </button>
@@ -160,14 +327,14 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Content */}
+            {/* Timeline */}
             <Timeline
                 title=""
-                fetchPosts={fetchPosts}
+                fetchPosts={fetchUserPosts}
                 emptyMessage={
                     <div className="text-center py-10">
                         <h3 className="text-xl font-bold mb-2">
-                            @{username} hasn't posted
+                            @{user.username} hasn't posted
                         </h3>
                         <p className="text-gray-500">
                             When they do, their posts will show up here.

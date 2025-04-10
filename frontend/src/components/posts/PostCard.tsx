@@ -40,7 +40,7 @@ const PostCard = ({ data, onDelete }: PostProps) => {
     return (
         <div className="border-b border-x-border p-4 hover:bg-black/[0.02] cursor-pointer transition-colors relative">
             <div className="flex">
-                <Link to={`/${author.username}`} className="mr-3">
+                <Link to={`/profile/${author.username}`} className="mr-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-[#4f46e5] to-[#e946b8] rounded-full mr-3 flex items-center justify-center text-white font-bold">
                         {author?.name?.charAt(0).toUpperCase() || "U"}
                     </div>

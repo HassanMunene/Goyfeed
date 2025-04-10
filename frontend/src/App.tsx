@@ -33,7 +33,8 @@ function App() {
 						<Route path="/explore" element={<ExplorePage />} />
 						<Route path="/notifications" element={<NotificationsPage />} />
 						<Route path="liked_posts" element={<LikedPostsPage />} />
-						<Route path="/profile" element={<ProfilePage />} />
+						{/* Dynamic profile route */}
+						<Route path="/profile/:username" element={<ProfilePage />} />
 					</Route>
 				</Routes>
 			</Suspense>
