@@ -18,7 +18,6 @@ export interface PostProps {
 
 const PostCard = ({ data }: PostProps) => {
     const {
-        id,
         content,
         image,
         createdAt,
