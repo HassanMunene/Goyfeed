@@ -1,8 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import Timeline from "../components/timeline/Timeline";
 
 const HomePage = () => {
-	const [refreshKey, setRefreshKey] = useState(0);
 	const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
 
 	const fetchPosts = useCallback(async () => {
@@ -46,7 +45,7 @@ const HomePage = () => {
 		}
 
 		return result.data.getPosts;
-	}, [refreshKey]);
+	}, [graphqlEndpoint]);
 
 	return (
 		<div className="min-h-screen">
