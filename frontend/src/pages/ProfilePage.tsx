@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { CalendarDays, Link as LinkIcon, MapPin, Mail, MoreHorizontal } from "lucide-react";
-import Timeline from "../components/timeline/Timeline";
+import { CalendarDays } from "lucide-react";
 import { createAvatar } from '@dicebear/core';
 import { identicon } from '@dicebear/collection';
 
@@ -10,14 +9,10 @@ interface User {
     username: string;
     name: string;
     avatar: string;
-    coverPhoto?: string;
     bio?: string;
-    location?: string;
-    website?: string;
-    verified: boolean;
-    joinDate: string;
-    followersCount: number;
-    followingCount: number;
+    createdAt: string;
+    followers: { id: string }[];
+    following: { id: string }[];
     posts: Post[];
 }
 
@@ -25,8 +20,6 @@ interface Post {
     id: string;
     content: string;
     image?: string;
-    likesCount: number;
-    commentsCount: number;
     createdAt: string;
 }
 
@@ -36,7 +29,6 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isFollowing, setIsFollowing] = useState(false);
-    const [activeTab, setActiveTab] = useState('posts');
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
@@ -47,24 +39,28 @@ const ProfilePage = () => {
                 setLoading(true);
                 setError(null);
 
-                const query = `
-          query GetUser($username: String!) {
-            getUser(username: $username) {
-              id
-              username
-              email
-              name
-              avatar
-              bio
-              posts {
-                id
-                content
-                image
-                createdAt
-              }
-            }
-          }
-        `;
+                const query = `query GetUser($username: String!) {
+                    getUser(username: $username) {
+                        id
+                        username
+                        name
+                        avatar
+                        bio
+                        createdAt
+                        followers {
+                            id
+                        }
+                        following {
+                            id
+                        }
+                        posts {
+                            id
+                            content
+                            image
+                            createdAt
+                        }
+                    }
+                }`;
 
                 const response = await fetch(graphqlEndpoint, {
                     method: "POST",
@@ -79,8 +75,6 @@ const ProfilePage = () => {
                 });
 
                 const result = await response.json();
-
-                console.log("ajajajaja", result);
 
                 if (result.errors) {
                     throw new Error(result.errors[0].message);
@@ -111,62 +105,21 @@ const ProfilePage = () => {
         }
     }, [user]);
 
-    const fetchUserPosts = async () => {
-        if (!user) return [];
-
-        try {
-            const query = `
-        query GetUserPosts($userId: ID!) {
-          getPost(id: $userId) {
-            id
-            content
-            image
-            createdAt
-          }
-        }
-      `;
-
-            const response = await fetch(graphqlEndpoint, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-                body: JSON.stringify({
-                    query,
-                    variables: { userId: user.id },
-                }),
-            });
-
-            const result = await response.json();
-
-            if (result.errors) {
-                throw new Error(result.errors[0].message);
-            }
-
-            return result.data?.getUserPosts || [];
-        } catch (err) {
-            console.error("Failed to fetch posts:", err);
-            setError("Failed to load posts");
-            return [];
-        }
-    };
-
     const toggleFollow = async () => {
         if (!user) return;
 
         try {
             const mutation = isFollowing ? `
-        mutation Unfollow($userId: ID!) {
-          unfollow(userId: $userId)
-        }
-      ` : `
-        mutation Follow($userId: ID!) {
-          follow(userId: $userId) {
-            id
-          }
-        }
-      `;
+                mutation Unfollow($userId: ID!) {
+                    unfollow(userId: $userId)
+                }
+            ` : `
+                mutation Follow($userId: ID!) {
+                    follow(userId: $userId) {
+                        id
+                    }
+                }
+            `;
 
             const response = await fetch(graphqlEndpoint, {
                 method: "POST",
@@ -187,10 +140,9 @@ const ProfilePage = () => {
             }
 
             setIsFollowing(!isFollowing);
-            // Update followers count optimistically
             setUser(prev => prev ? {
                 ...prev,
-                followersCount: isFollowing ? prev.followersCount - 1 : prev.followersCount + 1
+                followersCount: isFollowing ? prev.followers.length - 1 : prev.followers.length + 1
             } : null);
         } catch (err) {
             console.error("Failed to toggle follow:", err);
@@ -215,15 +167,7 @@ const ProfilePage = () => {
     return (
         <div className="pb-20">
             {/* Cover Photo */}
-            <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
-                {user.coverPhoto && (
-                    <img
-                        src={user.coverPhoto}
-                        alt="Cover"
-                        className="w-full h-full object-cover"
-                    />
-                )}
-            </div>
+            <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative"></div>
 
             {/* Profile Header */}
             <div className="px-4 relative">
@@ -238,17 +182,11 @@ const ProfilePage = () => {
 
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-2 pt-3">
-                    <button className="p-2 rounded-full border border-gray-200 hover:bg-gray-100">
-                        <Mail size={18} />
-                    </button>
-                    <button className="p-2 rounded-full border border-gray-200 hover:bg-gray-100">
-                        <MoreHorizontal size={18} />
-                    </button>
                     <button
                         onClick={toggleFollow}
                         className={`px-4 py-1.5 rounded-full font-bold ${isFollowing
-                            ? "bg-white text-black border border-gray-300 hover:border-red-300 hover:text-red-500"
-                            : "bg-black text-white hover:bg-gray-800"
+                                ? "bg-white text-black border border-gray-300 hover:border-red-300 hover:text-red-500"
+                                : "bg-black text-white hover:bg-gray-800"
                             }`}
                     >
                         {isFollowing ? "Following" : "Follow"}
@@ -260,88 +198,150 @@ const ProfilePage = () => {
             <div className="px-4 pt-16 pb-4">
                 <div className="flex items-center">
                     <h1 className="text-xl font-bold">{user.name}</h1>
-                    {user.verified && (
-                        <svg viewBox="0 0 24 24" className="w-5 h-5 ml-1 text-blue-500 fill-current">
-                            <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z" />
-                        </svg>
-                    )}
                 </div>
                 <p className="text-gray-500">@{user.username}</p>
 
                 {user.bio && <p className="my-3">{user.bio}</p>}
 
                 <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                    {user.location && (
-                        <div className="flex items-center">
-                            <MapPin size={16} className="mr-1" />
-                            <span>{user.location}</span>
-                        </div>
-                    )}
-                    {user.website && (
-                        <a
-                            href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center text-blue-500 hover:underline"
-                        >
-                            <LinkIcon size={16} className="mr-1" />
-                            <span>{user.website.replace(/(^\w+:|^)\/\//, '')}</span>
-                        </a>
-                    )}
                     <div className="flex items-center">
                         <CalendarDays size={16} className="mr-1" />
-                        <span>Joined {new Date(user.joinDate).toLocaleDateString('en-US', {
-                            month: 'long',
-                            year: 'numeric'
-                        })}</span>
+                        <span>
+                            Joined {new Date(Number(user.createdAt)).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                            })}
+                        </span>
                     </div>
                 </div>
 
                 <div className="flex gap-5">
                     <div className="hover:underline cursor-pointer">
-                        <span className="font-bold">follow count</span>
+                        <span className="font-bold">{user.following.length.toLocaleString()}</span>
                         <span className="text-gray-500"> Following</span>
                     </div>
                     <div className="hover:underline cursor-pointer">
-                        <span className="font-bold">follower count</span>
+                        <span className="font-bold">{user.followers.length.toLocaleString()}</span>
                         <span className="text-gray-500"> Followers</span>
                     </div>
                 </div>
             </div>
 
-            {/* Tabs */}
-            <div className="border-b border-gray-200">
-                <div className="flex">
-                    {['posts', 'replies', 'media', 'likes'].map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`flex-1 py-4 font-medium text-sm ${activeTab === tab
-                                ? 'text-black border-b-2 border-blue-500'
-                                : 'text-gray-500 hover:bg-gray-50'
-                                }`}
-                        >
-                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Timeline */}
-            <Timeline
-                title=""
-                fetchPosts={fetchUserPosts}
-                emptyMessage={
-                    <div className="text-center py-10">
-                        <h3 className="text-xl font-bold mb-2">
-                            @{user.username} hasn't posted
+            {/* Posts Section */}
+            <div className="mt-8">
+                {user.posts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                        <div className="p-6 bg-gray-100 rounded-full">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-12 w-12 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1.5}
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                />
+                            </svg>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-800">
+                            @{user.username} hasn't posted yet
                         </h3>
-                        <p className="text-gray-500">
-                            When they do, their posts will show up here.
+                        <p className="text-gray-500 max-w-md text-center">
+                            When they share their thoughts, you'll find them here. Check back soon!
                         </p>
                     </div>
-                }
-            />
+                ) : (
+                    <div className="space-y-6">
+                        {user.posts.map((post) => (
+                            <div
+                                key={post.id}
+                                className="p-6 bg-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
+                            >
+                                <div className="flex items-start space-x-4">
+                                    <div className="flex-shrink-0">
+                                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                                            <span className="text-white font-medium">
+                                                {user.username.charAt(0).toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center space-x-2">
+                                            <p className="font-bold text-gray-900">
+                                                @{user.username}
+                                            </p>
+                                            <span className="text-gray-500 text-sm">
+                                                ·
+                                            </span>
+                                            <p className="text-gray-500 text-sm">
+                                                {new Date(Number(post.createdAt)).toLocaleString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                })}
+                                            </p>
+                                        </div>
+                                        <p className="mt-1 text-gray-800 whitespace-pre-line">
+                                            {post.content}
+                                        </p>
+                                        {post.image && (
+                                            <div className="mt-3 rounded-lg overflow-hidden">
+                                                <img
+                                                    src={post.image}
+                                                    alt="Post content"
+                                                    className="w-full h-auto max-h-96 object-contain rounded-lg border border-gray-200"
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="mt-4 flex items-center space-x-4">
+                                            <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={1.5}
+                                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                                    />
+                                                </svg>
+                                                <span className="text-sm">Comment</span>
+                                            </button>
+                                            <button className="flex items-center space-x-1 text-gray-500 hover:text-red-500">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={1.5}
+                                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                                    />
+                                                </svg>
+                                                <span className="text-sm">Like</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

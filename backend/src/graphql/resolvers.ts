@@ -48,6 +48,21 @@ export const resolvers = {
             if (!userId) throw new Error('Not authenticated');
             return prisma.user.findUnique({ where: { id: userId } });
         },
+        getAllUsers: async () => {
+            try {
+                return await prisma.user.findMany({
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        email: true, // optional
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching users:', error);
+                throw new Error('Failed to fetch users');
+            }
+        },        
         getUser: async (_: unknown, { username }: { username: string }) => {
             try {
                 const user = await prisma.user.findUnique({
@@ -73,6 +88,8 @@ export const resolvers = {
 
                 return {
                     ...user,
+                    followers: user._count.followers || [],
+                    following: user._count.following || [],
                     followersCount: user._count.followers,
                     followingCount: user._count.following,
                     posts: user.posts.map(post => ({
@@ -115,9 +132,10 @@ export const resolvers = {
                 throw new Error('Failed to fetch posts');
             }
         },
-        getPost: async (_: unknown, { id }: { id: string }) => {
-            return prisma.post.findUnique({
-                where: { id },
+        getPostsByAuthor: async (_: unknown, { id }: { id: string }) => {
+            console.log("fetching posts for author id", id);
+            return prisma.post.findMany({
+                where: { authorId: id },
                 include: { author: true }
             });
         },

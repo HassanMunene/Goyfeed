@@ -70,9 +70,10 @@ export const typeDefs = gql`
     
     type Query {
         me: User
+        getAllUsers: [User!]!
         getUser(username: String!): User
         getPosts: [Post!]!
-        getPost(id: ID!): Post
+        getPostsByAuthor(id: String!): [Post!]!
         getFeed: [Post!]!
     }
     
