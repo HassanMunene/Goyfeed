@@ -51,11 +51,33 @@ export const resolvers = {
         getUser: async (_: unknown, { username }: { username: string }) => {
             return prisma.user.findUnique({ where: { username } });
         },
-        getPosts: async () => {
-            return prisma.post.findMany({
-                orderBy: { createdAt: 'desc' },
-                include: { author: true }
-            });
+        getPosts: async (_: unknown, __: unknown, { userId }: Context) => {
+            try {
+                const posts = await prisma.post.findMany({
+                    orderBy: { createdAt: 'desc' },
+                    include: {
+                        author: {
+                            select: { id: true, name: true, username: true }
+                        },
+                        likes: {
+                            select: { userId: true }
+                        },
+                        _count: {
+                            select: { likes: true, comments: true }
+                        }
+                    }
+                });
+
+                return posts.map(post => ({
+                    ...post,
+                    isLiked: post.likes.some(like => like.userId === userId),
+                    likesCount: post._count.likes,
+                    commentsCount: post._count.comments
+                }));
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                throw new Error('Failed to fetch posts');
+            }
         },
         getPost: async (_: unknown, { id }: { id: string }) => {
             return prisma.post.findUnique({
@@ -101,7 +123,7 @@ export const resolvers = {
             if (!userId) {
                 throw new Error('Not authenticated');
             }
-            
+
             try {
                 const newPost = await prisma.post.create({
                     data: {
@@ -123,7 +145,7 @@ export const resolvers = {
                         }
                     }
                 });
-        
+
                 return {
                     ...newPost,
                     message: 'Post created successfully!'

@@ -1,25 +1,19 @@
 import { useCallback, useState } from "react";
-
 import Timeline from "../components/timeline/Timeline";
-import NewPostForm from "../components/posts/NewPostForm";
-import { fetchHomeTimeline, createPost } from "../components/lib/mockData";
+import { createPost } from "../components/lib/mockData";
 
 const HomePage = () => {
 	const [refreshKey, setRefreshKey] = useState(0);
+	const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
 
 	const handleSubmitPost = useCallback(async (content: string, image?: File) => {
 		try {
-			// In a real app, we would upload the image first and get a URL
 			let imageUrl;
 			if (image) {
-				// Mock image upload by just using the local object URL
 				imageUrl = URL.createObjectURL(image);
 			}
 
-			// Create the post
-			await createPost("1", content, imageUrl);
-
-			// Force a refresh of the timeline
+			await createPost("1", content, imageUrl); // Replace with real mutation if available
 			setRefreshKey(prev => prev + 1);
 		} catch (error) {
 			console.error("Failed to make a post:", error);
@@ -27,12 +21,50 @@ const HomePage = () => {
 	}, []);
 
 	const fetchPosts = useCallback(async () => {
-		return fetchHomeTimeline();
-	}, [refreshKey]); // Depend on refreshKey to refetch when it changes
+		const query = `
+			query GetPosts {
+				getPosts {
+					id
+					content
+					image
+					createdAt
+					likes {
+      					user {
+        					id
+      					}
+    				}
+					author {
+						id
+						name
+						username
+					}
+				}
+			}
+		`;
+
+		const res = await fetch(graphqlEndpoint, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+			body: JSON.stringify({ query }),
+		});
+
+		const result = await res.json();
+
+		console.log("yooooo", result);
+
+		if (result.errors) {
+			console.error("GraphQL errors:", result.errors);
+			throw new Error(result.errors[0].message);
+		}
+
+		return result.data.getPosts;
+	}, [refreshKey]);
 
 	return (
 		<div className="min-h-screen">
-			{/* Timeline */}
 			<Timeline
 				title="Home"
 				fetchPosts={fetchPosts}
