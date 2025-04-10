@@ -3,6 +3,7 @@ import Modal from "react-modal";
 import { useAuth } from "../../context/AuthContext";
 import { X, Camera } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { useNavigate } from "react-router-dom";
 
 Modal.setAppElement("#root");
 
@@ -14,13 +15,21 @@ const PostModal = ({ isOpen, onRequestClose }: { isOpen: boolean; onRequestClose
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const navigate = useNavigate();
+
     const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
 
+    // Convert file to full base64 data URL
     const convertToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = error => reject(error);
+            reader.onloadend = () => {
+                if (reader.result) {
+                    resolve(reader.result as string); // Full data URL
+                } else {
+                    reject("Failed to convert to base64");
+                }
+            };
             reader.readAsDataURL(file);
         });
     };
@@ -37,7 +46,7 @@ const PostModal = ({ isOpen, onRequestClose }: { isOpen: boolean; onRequestClose
             };
 
             if (base64Image) {
-                variables.image = base64Image.split(',')[1]; // Send only the Base64 data part
+                variables.image = base64Image; // Full data URL
             }
 
             const query = `
@@ -83,7 +92,7 @@ const PostModal = ({ isOpen, onRequestClose }: { isOpen: boolean; onRequestClose
             setImage(null);
             setBase64Image(null);
             onRequestClose();
-
+            navigate("/", { replace: true });
         } catch (error: any) {
             console.error("Post creation error:", error);
             setError(error.message || "Failed to create post. Please try again.");
@@ -114,7 +123,7 @@ const PostModal = ({ isOpen, onRequestClose }: { isOpen: boolean; onRequestClose
         <Modal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
-            className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 outline-none"
+            className="z-100 relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 outline-none"
             overlayClassName="modal-overlay"
             closeTimeoutMS={200}
         >
@@ -145,10 +154,10 @@ const PostModal = ({ isOpen, onRequestClose }: { isOpen: boolean; onRequestClose
                     rows={4}
                 />
 
-                {image && (
+                {image && base64Image && (
                     <div className="relative mb-4">
                         <img
-                            src={URL.createObjectURL(image)}
+                            src={base64Image}
                             alt="Preview"
                             className="w-full rounded-lg mb-2 max-h-60 object-cover"
                         />
@@ -185,13 +194,7 @@ const PostModal = ({ isOpen, onRequestClose }: { isOpen: boolean; onRequestClose
                     disabled={!postContent.trim() || loading}
                     className={`w-full py-3 bg-gradient-to-r from-indigo-600 to-pink-500 text-white font-semibold rounded-full hover:from-indigo-700 hover:to-pink-600 transition disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                    {loading ? (
-                        <span className="inline-flex items-center justify-center">
-                            Posting...
-                        </span>
-                    ) : (
-                        "Post"
-                    )}
+                    {loading ? "Posting..." : "Post"}
                 </button>
             </div>
         </Modal>

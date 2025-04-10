@@ -72,7 +72,7 @@ const Timeline = ({ title, fetchPosts, emptyMessage = "No posts to display", onP
 			</div>
 
 			{/* New Post Form */}
-			<NewPostForm onSubmit={handleSubmitPost} />
+			<NewPostForm />
 
 			{/* Timeline Content */}
 			<div className="divide-y divide-gray-200">
@@ -91,11 +91,13 @@ const Timeline = ({ title, fetchPosts, emptyMessage = "No posts to display", onP
 				) : (
 					posts.map((post) => {
 						return (
+							<div className="p-2" key={post.id}>
 							<PostCard
 								key={post.id}
 								data={post}
 								onDelete={onPostDelete ? () => onPostDelete(post.id) : undefined} id={""}
 							/>
+							</div>
 						);
 					})
 				)}

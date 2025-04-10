@@ -9,6 +9,7 @@ import PostModal from "../posts/PostModal";
 const Sidebar = () => {
 	const { user, logout } = useAuth();
 	const navigate = useNavigate();
+	// State to manage the post modal visibility
 	const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
 	const handlePostClick = () => {
@@ -54,7 +55,7 @@ const Sidebar = () => {
 					<NavItem to="/explore" icon={<Search size={22} />} text="Explore" />
 					<NavItem to="/notifications" icon={<Bell size={22} />} text="Notifications" />
 					<NavItem to="/liked_posts" icon={<Heart size={22} />} text="Liked Posts" />
-					<NavItem to="/profile" icon={<User size={22} />} text="Profile" />
+					<NavItem to={`/profile/${user?.username}`} icon={<User size={22} />} text="Profile" />
 				</nav>
 				{/* Post Button */}
 				<button onClick={handlePostClick} className="mx-3 my-4 bg-gradient-to-r from-[#4f46e5] to-[#e946b8] hover:from-[#4338ca] hover:to-[#d433a6] text-white rounded-full py-3 px-6 font-bold flex items-center justify-center transition-all hover:shadow-lg active:scale-95">

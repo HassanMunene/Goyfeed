@@ -11,6 +11,8 @@ const SignupPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+	const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
+
 	const { login } = useAuth();
 
 	const handleSignup = async (values: {
@@ -23,7 +25,7 @@ const SignupPage = () => {
 		setSignupError(null);
 
 		try {
-			const response = await fetch("http://localhost:4000/graphql", {
+			const response = await fetch(graphqlEndpoint, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

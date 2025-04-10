@@ -4,6 +4,8 @@ import { CalendarDays } from "lucide-react";
 import { createAvatar } from '@dicebear/core';
 import { identicon } from '@dicebear/collection';
 
+import { useAuth } from "../context/AuthContext";
+
 interface User {
     id: string;
     username: string;
@@ -30,6 +32,8 @@ const ProfilePage = () => {
     const [error, setError] = useState<string | null>(null);
     const [isFollowing, setIsFollowing] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+    const { user: loggedInUser } = useAuth();
 
     const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
 
@@ -181,16 +185,25 @@ const ProfilePage = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-2 pt-3">
-                    <button
-                        onClick={toggleFollow}
-                        className={`px-4 py-1.5 rounded-full font-bold ${isFollowing
+                {/* on the action buttons if the username on the path is similar to the username of logged in user then there is no need for follow or following button */}
+                <div className="flex justify-between items-center pt-16">
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-xl font-bold">{user.name}</h1>
+                        {loggedInUser?.username === user.username && (
+                            <span className="text-sm text-gray-500">You</span>
+                        )}
+                    </div>
+                    {loggedInUser?.username !== user.username && (
+                        <button
+                            onClick={toggleFollow}
+                            className={`px-4 py-1.5 rounded-full font-bold ${isFollowing
                                 ? "bg-white text-black border border-gray-300 hover:border-red-300 hover:text-red-500"
                                 : "bg-black text-white hover:bg-gray-800"
-                            }`}
-                    >
-                        {isFollowing ? "Following" : "Follow"}
-                    </button>
+                                }`}
+                        >
+                            {isFollowing ? "Following" : "Follow"}
+                        </button>
+                    )}
                 </div>
             </div>
 
