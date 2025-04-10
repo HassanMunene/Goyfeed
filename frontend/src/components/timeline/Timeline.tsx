@@ -38,11 +38,6 @@ const Timeline = ({ title, fetchPosts, emptyMessage = "No posts to display", onP
 		loadPosts();
 	}, [loadPosts]);
 
-	// Handle post submission
-	const handleSubmitPost = async (content: string, image?: File) => {
-		console.log("Submitting post:", content, image);
-	};
-
 	// Trigger a manual refresh
 	const handleRefresh = () => {
 		loadPosts(true); // Trigger refresh by resetting the posts and setting refreshing state to true
@@ -94,8 +89,8 @@ const Timeline = ({ title, fetchPosts, emptyMessage = "No posts to display", onP
 							<div className="p-2" key={post.id}>
 							<PostCard
 								key={post.id}
-								data={post}
-								onDelete={onPostDelete ? () => onPostDelete(post.id) : undefined} id={""}
+								{...post}
+								onDelete={onPostDelete ? () => onPostDelete(post.id) : undefined}
 							/>
 							</div>
 						);

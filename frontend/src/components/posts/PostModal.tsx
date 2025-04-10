@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Modal from "react-modal";
 import { useAuth } from "../../context/AuthContext";
 import { X, Camera } from "lucide-react";
