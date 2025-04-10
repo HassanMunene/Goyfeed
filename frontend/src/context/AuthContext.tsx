@@ -1,10 +1,18 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+type User = {
+    id: string;
+    username: string;
+    email: string;
+    name: string;
+};
+
 // define the shape of the object ensure it has the required properties and that
 // their types are correct represent the structure of AuthContext
 type AuthContextType = {
     isAuthenticated: boolean;
-    login: (token: string) => void
+    user: User | null;
+    login: (token: string, user: User) => void
     logout: () => void
 }
 
@@ -14,17 +22,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) {
+        const userData = localStorage.getItem("user");
+
+        if (token && userData) {
             setIsAuthenticated(true);
+            setUser(JSON.parse(userData));
         }
     }, []);
 
-    const login = (token: string) => {
+    const login = (token: string, user: User) => {
         localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
         setIsAuthenticated(true);
+        setUser(user);
     };
 
     const logout = () => {
@@ -33,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
             {children}
         </AuthContext.Provider>
     )
