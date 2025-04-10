@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../mockData.ts"]
+  "include": ["src",]
 }

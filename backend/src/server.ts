@@ -17,7 +17,13 @@ const prisma = new PrismaClient();
 const app = express() as any;
 
 // enable cross-origin resource sharing. nd accept requests from different domains (useful for frontend → backend calls).
-app.use(cors());
+app.use(cors({
+    origin: [
+        "https://goyfeed-git-main-hassan-munenes-projects.vercel.app",
+        "https://goyfeed.vercel.app"
+    ],
+    credentials: true,
+}));
 
 // parse incoming json requests
 app.use(express.json());
