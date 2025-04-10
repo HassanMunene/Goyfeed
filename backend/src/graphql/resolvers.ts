@@ -98,10 +98,40 @@ export const resolvers = {
             return { token, user };
         },
         createPost: async (_: unknown, { content, image }: CreatePostArgs, { userId }: Context) => {
-            if (!userId) throw new Error('Not authenticated');
-            return prisma.post.create({
-                data: { content, image, authorId: userId }
-            });
+            if (!userId) {
+                throw new Error('Not authenticated');
+            }
+            
+            try {
+                const newPost = await prisma.post.create({
+                    data: {
+                        content,
+                        image: image || null, // Explicitly handle null case
+                        authorId: userId,
+                    },
+                    select: {  // Explicitly select fields to return
+                        id: true,
+                        content: true,
+                        image: true,
+                        createdAt: true,
+                        author: {  // Include author info if needed
+                            select: {
+                                id: true,
+                                name: true,
+                                username: true
+                            }
+                        }
+                    }
+                });
+        
+                return {
+                    ...newPost,
+                    message: 'Post created successfully!'
+                };
+            } catch (error) {
+                console.error('Error creating post:', error);
+                throw new Error('Failed to create post');
+            }
         },
         createComment: async (_: unknown, { postId, content }: CreateCommentArgs, { userId }: Context) => {
             if (!userId) throw new Error('Not authenticated');

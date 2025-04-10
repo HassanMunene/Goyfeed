@@ -1,12 +1,23 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Home, Search, Bell, User, MoreHorizontal, Feather, Power, Heart } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
+import PostModal from "../posts/PostModal";
 
 const Sidebar = () => {
-	const { logout } = useAuth();
+	const { user, logout } = useAuth();
 	const navigate = useNavigate();
+	const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
+	const handlePostClick = () => {
+		setIsPostModalOpen(true);
+	};
+
+	const handleClosePostModal = () => {
+		setIsPostModalOpen(false);
+	};
 
 	const handleLogoutClick = async () => {
 		const result = await Swal.fire({
@@ -32,7 +43,7 @@ const Sidebar = () => {
 			{/* Brand Logo */}
 			<div className="p-5 mb-2">
 				<h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#e946b8]">
-					Goy-Feed
+					GoyFeed
 				</h1>
 			</div>
 
@@ -46,7 +57,7 @@ const Sidebar = () => {
 					<NavItem to="/profile" icon={<User size={22} />} text="Profile" />
 				</nav>
 				{/* Post Button */}
-				<button className="mx-3 my-4 bg-gradient-to-r from-[#4f46e5] to-[#e946b8] hover:from-[#4338ca] hover:to-[#d433a6] text-white rounded-full py-3 px-6 font-bold flex items-center justify-center transition-all hover:shadow-lg active:scale-95">
+				<button onClick={handlePostClick} className="mx-3 my-4 bg-gradient-to-r from-[#4f46e5] to-[#e946b8] hover:from-[#4338ca] hover:to-[#d433a6] text-white rounded-full py-3 px-6 font-bold flex items-center justify-center transition-all hover:shadow-lg active:scale-95">
 					<Feather className="mr-2" size={18} />
 					Post
 				</button>
@@ -60,11 +71,11 @@ const Sidebar = () => {
 				>
 					<div className="flex items-center">
 						<div className="w-10 h-10 bg-gradient-to-br from-[#4f46e5] to-[#e946b8] rounded-full mr-3 flex items-center justify-center text-white font-bold">
-							U
+							{user?.name?.charAt(0).toUpperCase() || "U"}
 						</div>
 						<div>
-							<div className="font-semibold group-hover:text-[#4f46e5]">Username</div>
-							<div className="text-[#65676b] text-sm">@username</div>
+							<div className="font-semibold group-hover:text-[#4f46e5]">{user?.name || "username"}</div>
+							<div className="text-[#65676b] text-sm">@{user?.username || "@username"}</div>
 						</div>
 					</div>
 					<MoreHorizontal className="text-[#65676b] group-hover:text-[#4f46e5]" size={20} />
@@ -81,6 +92,9 @@ const Sidebar = () => {
 					/>
 					<span className="text-[15px] font-semibold">Log out</span>
 				</button>
+
+				{/* Post Modal */}
+				<PostModal isOpen={isPostModalOpen} onRequestClose={handleClosePostModal} />
 			</div>
 		</div>
 	);

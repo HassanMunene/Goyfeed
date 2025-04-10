@@ -37,6 +37,18 @@ main {
     animation: progress 2s ease-in-out infinite;
 }
 
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Black background with opacity */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    /* Adds padding around the modal */
+}
+
 @media screen and (max-width: 768px) {
 
     input,
