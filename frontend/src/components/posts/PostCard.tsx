@@ -6,6 +6,7 @@ import { formatNumber } from "../lib/utils";
 export interface PostProps {
     id: string;
     data: any;
+    user: any;
     onDelete?: () => void;
 }
 
