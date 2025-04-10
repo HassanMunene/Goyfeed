@@ -6,6 +6,12 @@ import { formatNumber } from "../lib/utils";
 export interface PostProps {
     id: string;
     data: any;
+    content: string;
+    image?: string;
+    createdAt: string;
+    isLiked: boolean;
+    likesCount: number;
+    commentsCount: number;
     user: any;
     onDelete?: () => void;
 }
