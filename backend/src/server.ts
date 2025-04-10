@@ -18,6 +18,7 @@ const app = express() as any;
 
 // enable cross-origin resource sharing. nd accept requests from different domains (useful for frontend → backend calls).
 // we want to enable CORS for our frontend app, so we specify the origin of the frontend app.
+// this allows the frontend app to make requests to the backend server.
 app.use(cors({
     origin: [
         "https://goyfeed-git-main-hassan-munenes-projects.vercel.app",
