@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarDays, Check, UserPlus, Pencil } from "lucide-react";
-import { createAvatar } from '@dicebear/core';
-import { identicon } from '@dicebear/collection';
 import { Link } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
