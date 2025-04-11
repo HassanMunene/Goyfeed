@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Heart, MoreHorizontal } from "lucide-react";
 
 import NewPostForm from "../components/posts/NewPostForm";
+import Loading from "../components/Loading";
 
 const HomePage = () => {
 	const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
@@ -85,7 +86,8 @@ const HomePage = () => {
 		loadPosts();
 	}, [fetchPosts]);
 
-	if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+	// Handle manual refresh
+	if (loading) return <div className="min-h-screen flex items-center justify-center"><Loading /></div>;
 	if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">Error: {error}</div>;
 	if (posts.length === 0) return <div className="min-h-screen flex items-center justify-center">No posts to display</div>;
 
