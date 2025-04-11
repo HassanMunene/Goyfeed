@@ -32,17 +32,17 @@ const SignupPage = () => {
 				},
 				body: JSON.stringify({
 					query: `
-					  mutation Signup($username: String!, $email: String!, $password: String!, $name: String) {
-						signup(username: $username, email: $email, password: $password, name: $name) {
-						  token
-						  user {
-							id
-							username
-							email
-							name
-						  }
+						mutation Signup($username: String!, $email: String!, $password: String!, $name: String) {
+							signup(username: $username, email: $email, password: $password, name: $name) {
+								token
+								user {
+									id
+									username
+									email
+									name
+								}
+							}
 						}
-					  }
 					`,
 					variables: {
 						username: values.username,
@@ -53,21 +53,31 @@ const SignupPage = () => {
 				}),
 			});
 
-			const { data, errors } = await response.json();
-			const result = await response.json();
-
-			if (errors) {
-				console.log("Error making sign up request", result.errors)
-				setSignupError(result.errors[0].message);
+			let json;
+			try {
+				json = await response.json();
+			} catch (e) {
+				console.error("Error parsing JSON:", e);
+				setSignupError("Unexpected server response. Please try again.");
+				return;
 			}
-			const { token, user } = data.signup;
 
+			const { data, errors } = json;
+
+			if (!response.ok || (errors && errors.length > 0)) {
+				console.error("GraphQL/API error", errors || json);
+				setSignupError(errors?.[0]?.message || "Signup failed. Please try again.");
+				return;
+			}
+
+			const { token, user } = data.signup;
 			login(token, user);
+
 			setSuccessMessage("Signup successful! Redirecting...");
 			await new Promise((resolve) => setTimeout(resolve, 1500));
 			navigate("/");
 		} catch (error) {
-			console.error(error);
+			console.error("Signup request failed:", error);
 			setSignupError("Registration failed. Please try again.");
 		} finally {
 			setIsLoading(false);
