@@ -50,10 +50,10 @@ export const typeDefs = gql`
     }
     
     type Like {
-        id: ID!
-        post: Post!
-        user: User!
-        createdAt: String!
+        id: ID
+        post: Post
+        user: User
+        createdAt: String
     }
     
     type Follow {
@@ -83,9 +83,18 @@ export const typeDefs = gql`
         createPost(content: String!, image: String): Post!
         createComment(postId: ID!, content: String!): Comment!
         likePost(postId: ID!): Like!
+        toggleLike(postId: ID!): LikePostResponse!
         unlikePost(postId: ID!): Boolean!
         follow(userId: ID!): Follow!
         unfollow(userId: ID!): Boolean!
+    }
+
+    type LikePostResponse {
+        success: Boolean!
+        message: String!
+        isLiked: Boolean!
+        like: Like
+        post: Post
     }
 `;
 

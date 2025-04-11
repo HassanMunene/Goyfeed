@@ -62,7 +62,7 @@ export const resolvers = {
                 console.error('Error fetching users:', error);
                 throw new Error('Failed to fetch users');
             }
-        },        
+        },
         getUser: async (_: unknown, { username }: { username: string }) => {
             try {
                 const user = await prisma.user.findUnique({
@@ -227,6 +227,67 @@ export const resolvers = {
                 where: { postId, userId }
             });
             return true;
+        },
+        toggleLike: async (_: unknown, { postId }: LikePostArgs, { userId }: Context) => {
+            try {
+                // check if user is authrnticated
+                if (!userId) throw new Error('Not authenticated');
+
+                // verify that indeed the post exists and fetch the likes and include them in the result.
+                const post = await prisma.post.findUnique({
+                    where: { id: postId },
+                    include: { likes: true }
+                });
+                if (!post) throw new Error('Post not found');
+
+                // check if the post has been liked by the user
+                const existingLike = await prisma.like.findFirst({
+                    where: { postId, userId }
+                });
+
+                let isLiked: boolean;
+                let like: any = null;
+
+                if (existingLike) {
+                    // unlike the post
+                    await prisma.like.delete({
+                        where: { id: existingLike?.id }
+                    });
+                    isLiked = false;
+
+                } else {
+                    like = await prisma.like.create({
+                        data: {
+                            postId,
+                            userId
+                        },
+                        include: {
+                            user: true,
+                            post: true
+                        }
+                    });
+                    isLiked = true;
+                }
+                // 4. Get updated post with likes count
+                const updatedPost = await prisma.post.findUnique({
+                    where: { id: postId },
+                    include: {
+                        likes: true,
+                        author: true
+                    }
+                });
+
+                return {
+                    success: true,
+                    message: isLiked ? 'Post liked successfully' : 'Post unliked successfully',
+                    isLiked,
+                    like,
+                    post: updatedPost
+                };
+            } catch (error) {
+                console.error('Error in toggleLike:', error);
+                throw error;
+            }
         },
         follow: async (_: unknown, { userId: followingId }: FollowArgs, { userId: followerId }: Context) => {
             if (!followerId) throw new Error('Not authenticated');
