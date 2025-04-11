@@ -94,7 +94,9 @@ const HomePage = () => {
 	return (
 		<>
 			{/* New Post Form */}
-			<NewPostForm />
+			<div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm p-2 -mx-4">
+				<NewPostForm />
+			</div>
 
 			{/* Posts Timeline */}
 			<div className="space-y-4 min-h-screen">
