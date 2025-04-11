@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Search, UserPlus, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useAuth } from "../../context/AuthContext";
+
 interface User {
 	id: string;
 	name: string;
@@ -10,6 +12,7 @@ interface User {
 }
 
 const RightSidebar = () => {
+	const { user: loggeInUser } = useAuth();
 	const [searchInput, setSearchInput] = useState("");
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -84,10 +87,14 @@ const RightSidebar = () => {
 		fetchUsers();
 	}, []);
 
-	const filteredUsers = users.filter((user) =>
-		user.name.toLowerCase().includes(searchInput.toLowerCase()) ||
-		user.username.toLowerCase().includes(searchInput.toLowerCase())
-	);
+	// Exclude the logged-in user from the list of suggested users
+	const filteredUsers = users
+		.filter(user => user.id !== loggeInUser?.id)
+		.filter(user =>
+			user.name.toLowerCase().includes(searchInput.toLowerCase()) ||
+			user.username.toLowerCase().includes(searchInput.toLowerCase())
+		);
+
 
 	return (
 		<div className="w-[350px] p-4 space-y-6 sticky top-0 h-screen overflow-y-auto no-scrollbar">
@@ -113,7 +120,7 @@ const RightSidebar = () => {
 				</h2>
 				{loading ? (
 					<p>Loading users...</p>
-				) : (
+				) : filteredUsers.length > 0 ? (
 					<div className="space-y-4">
 						{filteredUsers.map((user) => (
 							<div key={user.id} className="flex items-center justify-between">
@@ -147,6 +154,37 @@ const RightSidebar = () => {
 								</button>
 							</div>
 						))}
+					</div>
+				) : (
+					<div className="flex flex-col items-center justify-center py-8 text-center">
+						<div className="w-24 h-24 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full flex items-center justify-center mb-4">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								className="h-12 w-12 text-gray-400"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={1.5}
+									d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+								/>
+							</svg>
+						</div>
+						<h3 className="text-lg font-medium text-gray-800 mb-1">
+							No one left to follow
+						</h3>
+						<p className="text-gray-500 max-w-xs">
+							Invite friends to join! or check back later.
+						</p>
+						<button
+							onClick={() => fetchUsers()}
+							className="cursor-pointer mt-4 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors"
+						>
+							Refresh Suggestions
+						</button>
 					</div>
 				)}
 			</div>
