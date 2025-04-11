@@ -52,7 +52,7 @@ graph TD
     C --> B
     B --> A
     D[Client Browser] -->|WebSocket| A
-    style A fill:#61DAFB,stroke:#333
+    style A fill:#336791,stroke:#333
     style B fill:#000000,stroke:#333
     style C fill:#336791,stroke:#333
 ```
