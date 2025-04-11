@@ -75,6 +75,7 @@ export const typeDefs = gql`
         getPosts: [Post!]!
         getPostsByAuthor(id: String!): [Post!]!
         getFeed: [Post!]!
+        getPopularPosts(limit: Int = 5): [Post!]!
     }
     
     type Mutation {

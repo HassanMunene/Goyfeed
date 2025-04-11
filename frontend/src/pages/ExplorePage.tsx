@@ -1,14 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UserPlus } from "lucide-react";
-import { Search } from "lucide-react";
+import { UserPlus, Search, Heart } from "lucide-react";
+
+interface User {
+	id: string;
+	name: string;
+	username: string;
+}
+
+interface Post {
+	id: string;
+	content: string;
+	likes: { id: string }[];
+	author: User;
+	createdAt: string;
+}
 
 const ExplorePage = () => {
 	const [searchInput, setSearchInput] = useState("");
-	const [users, setUsers] = useState<{ id: string; name: string; username: string }[]>([]);
-	const [loading, setLoading] = useState(true);
+	const [users, setUsers] = useState<User[]>([]);
+	const [popularPosts, setPopularPosts] = useState<Post[]>([]);
+	const [loading, setLoading] = useState({
+		users: true,
+		posts: true
+	});
 
 	const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
+
 	const fetchUsers = async () => {
 		try {
 			const res = await fetch(graphqlEndpoint, {
@@ -17,29 +35,60 @@ const ExplorePage = () => {
 					"Content-Type": "application/json"
 				},
 				body: JSON.stringify({
-					query: `
-              query {
-                getAllUsers {
-                  id
-                  name
-                  username
-                }
-              }
-            `
+					query: `query {
+						getAllUsers {
+                			id
+                			name
+                			username
+              			}
+            		}`
 				})
 			});
-
 			const json = await res.json();
 			setUsers(json.data.getAllUsers);
 		} catch (err) {
 			console.error("Error fetching users:", err);
 		} finally {
-			setLoading(false);
+			setLoading(prev => ({ ...prev, users: false }));
+		}
+	};
+
+	const fetchPopularPosts = async () => {
+		try {
+			const res = await fetch(graphqlEndpoint, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					query: `query {
+						getPopularPosts {
+                			id
+                			content
+                			likes {
+                  				id
+                			}
+                			author {
+                  				id
+                  				name
+                  				username
+                			}
+                			createdAt
+              			}}`
+				})
+			});
+			const json = await res.json();
+			setPopularPosts(json.data.getPopularPosts);
+		} catch (err) {
+			console.error("Error fetching popular posts:", err);
+		} finally {
+			setLoading(prev => ({ ...prev, posts: false }));
 		}
 	};
 
 	useEffect(() => {
 		fetchUsers();
+		fetchPopularPosts();
 	}, []);
 
 	const filteredUsers = users.filter((user) =>
@@ -65,13 +114,55 @@ const ExplorePage = () => {
 				</div>
 			</div>
 
+			{/* Most Liked Posts Section - Responsive Design */}
+			<section className="bg-gray-50 rounded-xl p-4">
+				<h2 className="text-lg font-semibold mb-3">Most Liked Posts</h2>
+				{loading.posts ? (
+					<p>Loading popular posts...</p>
+				) : (
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+						{popularPosts.map((post) => (
+							<div key={post.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+								<div className="p-4">
+									<div className="flex items-center mb-2">
+										<Link to={`/profile/${post.author.username}`} className="mr-2">
+											<div className="w-8 h-8 bg-gradient-to-br from-[#4f46e5] to-[#e946b8] rounded-full flex items-center justify-center text-white font-bold text-sm">
+												{post.author?.name?.charAt(0).toUpperCase() || "U"}
+											</div>
+										</Link>
+										<div>
+											<Link to={`/profile/${post.author.username}`} className="font-medium text-sm hover:underline">
+												{post.author.name}
+											</Link>
+											<p className="text-xs text-gray-500">@{post.author.username}</p>
+										</div>
+									</div>
+									<p className="text-sm mb-3 line-clamp-3">{post.content}</p>
+									<div className="flex items-center text-xs text-gray-500">
+										<Heart className="w-4 h-4 mr-1 fill-red-500 text-red-500" />
+										<span>{post.likes.length} likes</span>
+										<span className="mx-2">•</span>
+										<span>
+											{new Date(Number(post.createdAt)).toLocaleDateString('en-US', {
+												month: 'short',
+												day: 'numeric'
+											})}
+										</span>
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+			</section>
+
 			{/* Suggested Users */}
 			<div className="bg-gray-50 rounded-xl p-4">
 				<h2 className="flex items-center text-lg font-semibold mb-3">
 					<UserPlus className="mr-2 h-5 w-5" />
 					Who to Follow
 				</h2>
-				{loading ? (
+				{loading.users ? (
 					<p>Loading users...</p>
 				) : (
 					<div className="space-y-4">
@@ -96,9 +187,6 @@ const ExplorePage = () => {
 					</div>
 				)}
 			</div>
-
-			{/* Trending Posts */}
-			<section></section>
 		</div>
 	);
 };

@@ -132,6 +132,36 @@ export const resolvers = {
                 throw new Error('Failed to fetch posts');
             }
         },
+        getPopularPosts: async (_: any, { limit }: { limit: number }, context: Context) => {
+            try {
+                // Get posts ordered by like count (most popular first)
+                const posts = await prisma.post.findMany({
+                    take: limit || 5,
+                    orderBy: {
+                        likes: {
+                            _count: 'desc'
+                        }
+                    },
+                    include: {
+                        likes: {
+                            select: {
+                                id: true
+                            }
+                        },
+                        author: true
+                    }
+                });
+
+                return posts.map(post => ({
+                    ...post,
+                    createdAt: post.createdAt.toISOString()
+                }));
+
+            } catch (error) {
+                console.error('Error fetching popular posts:', error);
+                throw new Error('Failed to fetch popular posts');
+            }
+        },
         getPostsByAuthor: async (_: unknown, { id }: { id: string }) => {
             console.log("fetching posts for author id", id);
             return prisma.post.findMany({
