@@ -305,13 +305,13 @@ const ProfilePage = () => {
             </div>
 
             {/* Posts Section */}
-            <div className="mt-8">
+            <div className="mt-6 px-4 sm:px-0">
                 {user.posts.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                        <div className="p-6 bg-gray-100 rounded-full">
+                    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                        <div className="p-5 bg-gray-100 rounded-full mb-4">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-12 w-12 text-gray-400"
+                                className="h-10 w-10 text-gray-400"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -324,37 +324,34 @@ const ProfilePage = () => {
                                 />
                             </svg>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800">
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
                             @{user.username} hasn't posted yet
                         </h3>
-                        <p className="text-gray-500 max-w-md text-center">
+                        <p className="text-gray-500 text-sm sm:text-base max-w-xs sm:max-w-md">
                             When they share their thoughts, you'll find them here. Check back soon!
                         </p>
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                         {user.posts.map((post) => (
                             <div
                                 key={post.id}
-                                className="p-6 bg-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
+                                className="p-4 sm:p-6 bg-white rounded-xl shadow-xs hover:shadow-sm transition-shadow duration-200 border border-gray-100"
                             >
-                                <div className="flex items-start space-x-4">
-                                    <div className="flex-shrink-0">
-                                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                                            <span className="text-white font-medium">
-                                                {user.username.charAt(0).toUpperCase()}
-                                            </span>
-                                        </div>
+                                <div className="flex items-start gap-3 sm:gap-4">
+                                    {/* Avatar - Fixed size for mobile */}
+                                    <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium text-lg">
+                                        {user.username.charAt(0).toUpperCase()}
                                     </div>
+
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center space-x-2">
-                                            <p className="font-bold text-gray-900">
+                                        {/* Header - Stacked on mobile */}
+                                        <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                                            <p className="font-bold text-gray-900 text-sm sm:text-base">
                                                 @{user.username}
                                             </p>
-                                            <span className="text-gray-500 text-sm">
-                                                ·
-                                            </span>
-                                            <p className="text-gray-500 text-sm">
+                                            <span className="hidden sm:inline text-gray-400">·</span>
+                                            <p className="text-gray-500 text-xs sm:text-sm">
                                                 {new Date(Number(post.createdAt)).toLocaleString("en-US", {
                                                     month: "short",
                                                     day: "numeric",
@@ -363,20 +360,27 @@ const ProfilePage = () => {
                                                 })}
                                             </p>
                                         </div>
-                                        <p className="mt-1 text-gray-800 whitespace-pre-line">
+
+                                        {/* Post Content - Better mobile spacing */}
+                                        <p className="mt-2 sm:mt-3 text-gray-800 whitespace-pre-line text-sm sm:text-base">
                                             {post.content}
                                         </p>
+
+                                        {/* Image - Responsive with proper constraints */}
                                         {post.image && (
-                                            <div className="mt-3 rounded-lg overflow-hidden">
+                                            <div className="mt-3 rounded-lg overflow-hidden border border-gray-100">
                                                 <img
                                                     src={post.image}
                                                     alt="Post content"
-                                                    className="w-full h-auto max-h-96 object-contain rounded-lg border border-gray-200"
+                                                    className="w-full h-auto max-h-80 sm:max-h-96 object-cover"
+                                                    loading="lazy"
                                                 />
                                             </div>
                                         )}
-                                        <div className="mt-4 flex items-center space-x-4">
-                                            <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500">
+
+                                        {/* Actions - Better mobile touch targets */}
+                                        <div className="mt-3 sm:mt-4 flex items-center gap-4 sm:gap-6">
+                                            <button className="flex items-center gap-1 text-gray-500 hover:text-blue-500 p-1 sm:p-0">
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     className="h-5 w-5"
@@ -391,9 +395,9 @@ const ProfilePage = () => {
                                                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                                                     />
                                                 </svg>
-                                                <span className="text-sm">Comment</span>
+                                                <span className="text-xs sm:text-sm">Comment</span>
                                             </button>
-                                            <button className="flex items-center space-x-1 text-gray-500 hover:text-red-500">
+                                            <button className="flex items-center gap-1 text-gray-500 hover:text-red-500 p-1 sm:p-0">
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     className="h-5 w-5"
@@ -408,7 +412,7 @@ const ProfilePage = () => {
                                                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                                                     />
                                                 </svg>
-                                                <span className="text-sm">Like</span>
+                                                <span className="text-xs sm:text-sm">Like</span>
                                             </button>
                                         </div>
                                     </div>
