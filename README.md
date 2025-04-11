@@ -1,6 +1,7 @@
 # 🚀 GoyFeed - Modern Social Media Platform
 
-![GoyFeed Screenshot](https://github.com/user-attachments/assets/670f06f8-a59d-4861-af2f-29abb1a51640)
+![GoyFeed Screenshot](https://github.com/user-attachments/assets/d5ce6aa1-22ff-4cac-8364-efa749563b36)
+
 
 A full-stack social media application with real-time engagement features, built with React, GraphQL, and PostgreSQL.
 
