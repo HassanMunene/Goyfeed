@@ -76,6 +76,7 @@ export const typeDefs = gql`
         getPostsByAuthor(id: String!): [Post!]!
         getFeed: [Post!]!
         getPopularPosts(limit: Int = 5): [Post!]!
+        getSuggestedUsers: [SuggestedUser!]!
     }
     
     type Mutation {
@@ -88,6 +89,8 @@ export const typeDefs = gql`
         unlikePost(postId: ID!): Boolean!
         follow(userId: ID!): Follow!
         unfollow(userId: ID!): Boolean!
+        followUser(userId: ID!): FollowResult!
+        unfollowUser(userId: ID!): FollowResult!
     }
 
     type LikePostResponse {
@@ -96,6 +99,18 @@ export const typeDefs = gql`
         isLiked: Boolean!
         like: Like
         post: Post
+    }
+
+    type SuggestedUser {
+        id: ID!
+        name: String!
+        username: String!
+        isFollowed: Boolean!
+    }
+
+    type FollowResult {
+        success: Boolean!
+        message: String
     }
 `;
 

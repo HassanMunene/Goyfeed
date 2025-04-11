@@ -63,6 +63,55 @@ export const resolvers = {
                 throw new Error('Failed to fetch users');
             }
         },
+        getSuggestedUsers: async (_: unknown, __: unknown, { userId }: Context) => {
+            if (!userId) throw new Error('Not authenticated');
+
+            try {
+                // Get random 5 users (excluding current user and already followed)
+                const users = await prisma.user.findMany({
+                    where: {
+                        NOT: {
+                            id: userId,
+                            followers: {
+                                some: {
+                                    followerId: userId
+                                }
+                            }
+                        }
+                    },
+                    take: 5,
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true
+                    }
+                });
+
+                // Check if current user follows each suggested user
+                const usersWithFollowStatus = await Promise.all(
+                    users.map(async (user) => {
+                        const follow = await prisma.follow.findFirst({
+                            where: {
+                                followerId: userId,
+                                followingId: user.id
+                            }
+                        });
+                        return {
+                            ...user,
+                            isFollowed: !!follow
+                        };
+                    })
+                );
+
+                return usersWithFollowStatus;
+            } catch (error) {
+                console.error('Error fetching suggested users:', error);
+                throw new Error('Failed to fetch suggested users');
+            }
+        },
         getUser: async (_: unknown, { username }: { username: string }) => {
             try {
                 const user = await prisma.user.findUnique({
@@ -331,6 +380,41 @@ export const resolvers = {
                 where: { followerId, followingId }
             });
             return true;
+        },
+        followUser: async (_: unknown, { userId }: { userId: string }, { userId: currentUserId }: Context) => {
+            try {
+                if (!currentUserId) throw new Error('Not authenticated');
+                if (currentUserId === userId) throw new Error('Cannot follow yourself');
+
+                const follow = await prisma.follow.create({
+                    data: {
+                        followerId: currentUserId,
+                        followingId: userId
+                    }
+                });
+
+                return { success: true, message: 'Followed successfully' };
+            } catch (error) {
+                console.log(error);
+                throw new Error('Failed to follow user');
+            }
+        },
+        unfollowUser: async (_: any, { userId }: { userId: string }, { userId: currentUserId }: Context) => {
+            try {
+                if (!currentUserId) throw new Error('Not authenticated');
+
+                await prisma.follow.deleteMany({
+                    where: {
+                        followerId: currentUserId,
+                        followingId: userId
+                    }
+                });
+
+                return { success: true, message: 'Unfollowed successfully' };
+            } catch (error) {
+                console.error('Error unfollowing user:', error);
+                throw new Error('Failed to unfollow user');
+            }
         }
     }
 };

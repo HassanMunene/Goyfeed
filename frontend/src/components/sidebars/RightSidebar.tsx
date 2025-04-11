@@ -1,39 +1,82 @@
 import { useEffect, useState } from "react";
-import { Search, UserPlus } from "lucide-react";
+import { Search, UserPlus, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+
+interface User {
+	id: string;
+	name: string;
+	username: string;
+	isFollowed?: boolean;
+}
 
 const RightSidebar = () => {
 	const [searchInput, setSearchInput] = useState("");
-	const [users, setUsers] = useState<{ id: string; name: string; username: string }[]>([]);
+	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [isFollowing, setIsFollowing] = useState(false);
 
 	const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
+
 	const fetchUsers = async () => {
 		try {
 			const res = await fetch(graphqlEndpoint, {
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json"
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem("token")}`
 				},
 				body: JSON.stringify({
-					query: `
-            query {
-              getAllUsers {
-                id
-                name
-                username
-              }
-            }
-          `
+					query: `query GetSuggestedUsers {
+						getSuggestedUsers {
+                			id
+                			name
+                			username
+                			isFollowed
+              			}
+            		}`
 				})
 			});
 
 			const json = await res.json();
-			setUsers(json.data.getAllUsers);
+			setUsers(json.data.getSuggestedUsers);
 		} catch (err) {
 			console.error("Error fetching users:", err);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const handleFollow = async (userId: string, isCurrentlyFollowed: boolean) => {
+		try {
+			setIsFollowing(true);
+			const mutation = isCurrentlyFollowed ?
+				`mutation { unfollowUser(userId: "${userId}") { success } }` :
+				`mutation { followUser(userId: "${userId}") { success } }`;
+
+			const res = await fetch(graphqlEndpoint, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem("token")}`
+				},
+				body: JSON.stringify({ query: mutation })
+			});
+
+			const json = await res.json();
+
+			if (json.data?.followUser?.success || json.data?.unfollowUser?.success) {
+				setUsers(prevUsers =>
+					prevUsers.map(user =>
+						user.id === userId
+							? { ...user, isFollowed: !isCurrentlyFollowed }
+							: user
+					)
+				);
+			}
+		} catch (err) {
+			console.error("Error toggling follow:", err);
+		} finally {
+			setIsFollowing(false);
 		}
 	};
 
@@ -85,8 +128,22 @@ const RightSidebar = () => {
 										<p className="text-xs text-gray-500">@{user.username}</p>
 									</div>
 								</div>
-								<button className="text-sm bg-black text-white px-3 py-1 rounded-full hover:opacity-90">
-									Follow
+								<button
+									onClick={() => handleFollow(user.id, user.isFollowed || false)}
+									disabled={isFollowing}
+									className={`text-sm cursor-pointer px-3 py-1 rounded-full flex items-center gap-1 ${user.isFollowed
+											? "bg-gray-200 text-gray-800 hover:bg-gray-300"
+											: "bg-black text-white hover:opacity-90"
+										}`}
+								>
+									{user.isFollowed ? (
+										<>
+											<Check className="w-4 h-4" />
+											Following
+										</>
+									) : (
+										"Follow"
+									)}
 								</button>
 							</div>
 						))}
