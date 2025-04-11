@@ -24,7 +24,7 @@ const MainLayout = () => {
     return (
         <div className="relative flex min-h-screen bg-white text-black">
             {/* mobile menu only visible on small screens */}
-            <button onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} className="fixed top-4 left-4 z-50 p-2 md:hidden bg-white/80 backdrop-blur-sm rounded-full shadow-lg">
+            <button onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} className="fixed top-4 right-4 z-50 p-2 md:hidden bg-white/80 backdrop-blur-sm rounded-full shadow-lg">
                 <Menu className="text-[#4f46e5]" />
             </button>
 
