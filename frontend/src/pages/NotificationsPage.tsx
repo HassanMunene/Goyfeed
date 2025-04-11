@@ -1,106 +1,54 @@
-import { Heart, UserPlus, MessageSquare, Repeat, Bell } from "lucide-react";
+import { Bell, Construction, Rocket } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const NotificationsPage = () => {
-  // Sample notification data
-  const notifications = [
-    {
-      type: 'like',
-      user: 'Alex Designer',
-      handle: '@alexcreative',
-      time: '2m ago',
-      postPreview: 'Your UI design tips are amazing!',
-      read: false
-    },
-    {
-      type: 'follow',
-      user: 'Tech Guru',
-      handle: '@reactmaster',
-      time: '15m ago',
-      read: false
-    },
-    {
-      type: 'comment',
-      user: 'Travel Blogger',
-      handle: '@wanderlust',
-      time: '1h ago',
-      postPreview: 'Just tried your recommendation in Bali!',
-      read: true
-    },
-    {
-      type: 'repost',
-      user: 'Dev Newbie',
-      handle: '@codingjourney',
-      time: '3h ago',
-      postPreview: 'Learned so much from your post!',
-      read: true
-    }
-  ];
+	return (
+		<div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+			{/* Card container - responsive width */}
+			<div className="max-w-md w-full mx-4 bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
 
-  const getNotificationIcon = (type: string) => {
-    switch(type) {
-      case 'like': return <Heart className="text-red-500" />;
-      case 'follow': return <UserPlus className="text-blue-500" />;
-      case 'comment': return <MessageSquare className="text-green-500" />;
-      case 'repost': return <Repeat className="text-purple-500" />;
-      default: return <Bell className="text-yellow-500" />;
-    }
-  };
+				{/* Header - responsive padding */}
+				<div className="p-4 sm:p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+					<div className="flex items-center justify-center mb-3 sm:mb-4">
+						<Construction className="h-10 w-10 sm:h-12 sm:w-12" />
+						<Bell className="h-10 w-10 sm:h-12 sm:w-12 ml-3 sm:ml-4" />
+					</div>
+					<h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">
+						Notifications Coming Soon!
+					</h1>
+				</div>
 
-  return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 flex items-center">
-        <Bell className="mr-2" />
-        Notifications
-      </h1>
+				{/* Content - responsive spacing */}
+				<div className="p-5 sm:p-8 text-center">
+					<div className="relative mb-6 sm:mb-8">
+						<Rocket className="h-24 w-24 sm:h-32 sm:w-32 mx-auto text-purple-500 animate-bounce" />
+					</div>
 
-      {/* Notification Tabs */}
-      <div className="flex border-b mb-4">
-        <button className="px-4 py-2 font-medium border-b-2 border-black">
-          All
-        </button>
-        <button className="px-4 py-2 text-gray-500">
-          Mentions
-        </button>
-      </div>
+					<h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
+						Stay Tuned
+					</h2>
+					<p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+						We're building an amazing notifications experience!
+					</p>
 
-      {/* Notifications List */}
-      <div className="space-y-4">
-        {notifications.map((notification, index) => (
-          <div 
-            key={index} 
-            className={`p-3 rounded-lg ${notification.read ? 'bg-white' : 'bg-blue-50 border-l-4 border-blue-500'}`}
-          >
-            <div className="flex items-start">
-              <div className="p-2 mr-3 bg-gray-100 rounded-full">
-                {getNotificationIcon(notification.type)}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center">
-                  <span className="font-semibold mr-1">{notification.user}</span>
-                  <span className="text-gray-500">{notification.handle}</span>
-                  <span className="mx-1">·</span>
-                  <span className="text-gray-400 text-sm">{notification.time}</span>
-                </div>
-                {notification.postPreview && (
-                  <p className="mt-1 text-gray-700">
-                    {notification.postPreview}
-                  </p>
-                )}
-                {notification.type === 'follow' && (
-                  <button className="mt-2 px-3 py-1 bg-black text-white text-xs font-bold rounded-full hover:opacity-90">
-                    Follow back
-                  </button>
-                )}
-              </div>
-              {!notification.read && (
-                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+					{/* Buttons - responsive sizing */}
+					<div className="space-y-3 sm:space-y-4">
+						<Link
+							to="/"
+							className="block px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity text-sm sm:text-base"
+						>
+							Return Home
+						</Link>
+					</div>
+				</div>
+
+				{/* Footer - responsive text */}
+				<div className="p-3 sm:p-4 text-center text-xs sm:text-sm text-gray-500">
+					<p>Expected release: Coming Soon</p>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default NotificationsPage;
