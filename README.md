@@ -44,3 +44,85 @@ graph LR
     style A fill:#4CAF50,stroke:#333,stroke-width:2px
     style B fill:#4CAF50,stroke:#333,stroke-width:2px
     style C fill:#FFC107,stroke:#333,stroke-width:2px
+
+
+# GoyFeed - Complete Setup Guide
+
+## Prerequisites
+
+Before setting up **GoyFeed**, ensure you have the following installed:
+
+- **Node.js** v18+
+- **PostgreSQL** 15+
+- **npm**
+- **Git**
+
+---
+
+## 1. Frontend Setup (React + TypeScript + Tailwind)
+
+### Clone & Install
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/HassanMunene/Goyfeed
+cd Goyfeed/frontend
+npm install
+
+
+## After installing packages on the frontend now it time to configure the environment variable for frontend. What we need is the endpoint for the backend communicate with it.
+
+### so create a file named .env in the frontend.
+
+```bash
+./frontend/.env
+
+VITE_GRAPHQL_ENDPOINT=http://localhost:4000/graphql
+```
+
+After that start the frontend server for it to run:
+
+
+```bash
+npm run dev
+```
+
+
+## 2. Backend Setup (Express + GraphQl + Postgress)
+
+### Clone & Install
+
+Clone the repository and install dependencies:
+
+```bash
+cd Goyfeed/backend
+npm install
+```
+
+## After installing packages on the backend now it time to configure the environment variable for backend.
+
+### so create a file named .env in the backend.
+
+```bash
+./backend/.env
+
+DATABASE_URL="postgresql://<username>:<password@localhost:5432/<db_name>?schema=public"
+APP_SECRET=<your secret key>
+PORT=4000
+```
+
+## After that Initialize Database
+Run the Prisma migration command to set up the database schema:
+
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
+
+After that start the bakend server for it to run:
+
+
+```bash
+npm run dev
+```
