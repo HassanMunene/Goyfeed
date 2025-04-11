@@ -17,15 +17,33 @@ A full-stack social media application with real-time features, built with cuttin
  
 # GoyFeed Architecture Overview
 
-## System Design
+<div align="center">
+  <img src="https://i.imgur.com/JqQXdQm.png" alt="Architecture Diagram" width="600">
+</div>
+
+## 🌐 Tech Stack
+
+### **Frontend**
+<p align="left">
+  <img src="https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB" alt="React">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+</p>
+
+### **Backend**
+<p align="left">
+  <img src="https://img.shields.io/badge/Express-000000?logo=express&logoColor=white" alt="Express">
+  <img src="https://img.shields.io/badge/GraphQL-E10098?logo=graphql&logoColor=white" alt="GraphQL">
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white" alt="Prisma">
+</p>
+
+## 🏗 System Architecture
+
 ```mermaid
-graph LR
-    A[Client: React, Typescript, Tailwindcss] --> B[API Gateway: Express]
-    B --> C[User Service]
-    B --> D[Post Service]
-    B --> E[Notification Service]
-    style A fill:#61dafb,stroke:#333
-    style B fill:#90c53f,stroke:#333
-    style C fill:#ff6b6b,stroke:#333
-    style D fill:#ffd166,stroke:#333
-    style E fill:#a64ac9,stroke:#333
+flowchart LR
+    A[React Frontend] -->|GraphQL| B[Express Gateway]
+    B -->|Prisma Client| C[(PostgreSQL)]
+    style A fill:#61DAFB,stroke:#333
+    style B fill:#000000,stroke:#333
+    style C fill:#4169E1,stroke:#333
