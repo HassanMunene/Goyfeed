@@ -1,34 +1,29 @@
-# 🚀 GoyFeed - Social Media App
+# 🚀 GoyFeed - Modern Social Media Platform
 
-A modern social media platform built with **React, Node.js, Express, GraphQL, PostgreSQL, and Prisma**.
+![GoyFeed Screenshot](https://github.com/user-attachments/assets/670f06f8-a59d-4861-af2f-29abb1a51640)
+![Image](https://github.com/user-attachments/assets/670f06f8-a59d-4861-af2f-29abb1a51640)
 
-![GoyFeed Screenshot](https://via.placeholder.com/800x400?text=GoyFeed+Screenshot)
-
----
-
-## 🌟 Features
-
-✅ **User Authentication** (Signup/Login)  
-✅ **Create/View Posts** (Text + Images)  
-✅ **Follow/Unfollow Users**  
-✅ **Real-time Notifications**  
-✅ **Responsive Design** (Mobile + Desktop)
+A full-stack social media application with real-time features, built with cutting-edge technologies.
 
 ---
 
-## 🛠️ Tech Stack
+## 🌟 Key Features
 
-| Frontend  | Backend   | Database     | DevOps  |
-|-----------|-----------|--------------|---------|
-| React     | Node.js   | PostgreSQL   | Render  |
-| GraphQL   | Express   | Prisma       | Vercel  |
-| Tailwind  | Apollo    |              |         |
+### Core Functionality
+✅ **JWT Authentication** (Secure signup/login with token refresh)  
+✅ **Rich Post Creation** (Text, images, and embedded media)  
+✅ **Social Graph** (Follow/unfollow with privacy controls)  
+✅ **Real-time Engagement** (Likes, comments, shares)  
+✅ **Push Notifications** (WebSocket-based alerts)  
+
+### Advanced Features
+✨ **Optimistic UI Updates** (Instant feedback on interactions)  
+✨ **Infinite Scroll** (Efficient post loading)  
+✨ **Accessibility** (WCAG 2.1 compliant components)  
+✨ **Dark/Light Mode** (User preference system)  
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🏗️ Architectural Overview
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/goyfeed.git
-cd goyfeed
+### System Architecture
