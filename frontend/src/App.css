@@ -46,6 +46,7 @@ main {
     justify-content: center;
     align-items: center;
     padding: 1rem;
+    z-index: 100;
     /* Adds padding around the modal */
 }
 
