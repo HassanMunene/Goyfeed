@@ -41,5 +41,6 @@ A full-stack social media application with real-time features, built with cuttin
 graph LR
     A[React Frontend] -->|GraphQL| B[Express Gateway]
     B -->|Prisma Client| C[(PostgreSQL)]
-    style A fill:#61dafb,stroke:#333
-    style B fill:#90c53f,stroke:#333
+    style A fill:#61dafb,stroke:#333,stroke-width:2px
+    style B fill:#4CAF50,stroke:#333,stroke-width:2px
+    style C fill:#FFC107,stroke:#333,stroke-width:2px
