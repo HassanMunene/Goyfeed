@@ -4,6 +4,7 @@ import { Heart, MoreHorizontal } from "lucide-react";
 
 import NewPostForm from "../components/posts/NewPostForm";
 import Loading from "../components/Loading";
+import EmptyPostComponent from "../components/posts/EmptyPostComponent";
 
 const HomePage = () => {
 	const graphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT || "http://localhost:4000/graphql";
@@ -160,7 +161,9 @@ const HomePage = () => {
 
 	if (loading) return <div className="min-h-screen flex items-center justify-center"><Loading /></div>;
 	if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">Error: {error}</div>;
-	if (posts.length === 0) return <div className="min-h-screen flex items-center justify-center">No posts to display</div>;
+	if (posts.length === 0) return (
+		<EmptyPostComponent />
+	);
 
 	return (
 		<>
@@ -242,16 +245,16 @@ const HomePage = () => {
 											onClick={() => !isLikeLoading && toggleLike(post.id)}
 											disabled={isLikeLoading}
 											className={`flex items-center gap-1 p-1 md:p-2 rounded-full transition-all duration-200 ${isLiked
-													? "text-rose-500 fill-rose-500 hover:text-rose-600"
-													: "text-gray-400 hover:text-rose-400"
+												? "text-rose-500 fill-rose-500 hover:text-rose-600"
+												: "text-gray-400 hover:text-rose-400"
 												} ${isLikeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
 											aria-label={isLiked ? "Unlike post" : "Like post"}
 										>
 											<div className="relative">
 												<Heart
 													className={`w-4 h-4 md:w-5 md:h-5 transition-all duration-200 ${isLiked
-															? "fill-rose-500 scale-110"
-															: "fill-transparent"
+														? "fill-rose-500 scale-110"
+														: "fill-transparent"
 														}`}
 												/>
 												{isLiked && (
