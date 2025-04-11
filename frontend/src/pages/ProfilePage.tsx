@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { CalendarDays, Check } from "lucide-react";
+import { CalendarDays, Check, UserPlus, Pencil } from "lucide-react";
 import { createAvatar } from '@dicebear/core';
 import { identicon } from '@dicebear/collection';
 import { Link } from "react-router-dom";
@@ -177,90 +177,140 @@ const ProfilePage = () => {
         </div>
     );
 
+    function generateUserGradient(userId: string) {
+        const gradients = [
+            'from-blue-500 to-purple-600',
+            'from-emerald-500 to-cyan-600',
+            'from-rose-500 to-pink-600',
+            'from-amber-500 to-orange-600',
+            'from-violet-500 to-fuchsia-600'
+        ];
+        // Simple hash for consistent color assignment
+        const hash = Array.from(userId).reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+        return gradients[hash % gradients.length];
+    }
+
     return (
         <div className="pb-20">
-            {/* Cover Photo */}
-            <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative"></div>
+            {/* Modern Cover Photo with Gradient */}
+            <div className="h-48 bg-gradient-to-r from-indigo-600 to-purple-700 relative overflow-hidden">
+                {/* Subtle noise texture for depth */}
+                <div className="absolute inset-0 bg-noise opacity-10"></div>
+            </div>
 
-            {/* Profile Header */}
-            <div className="px-4 relative">
-                {/* Avatar */}
-                <div className="absolute -top-16 left-4 border-4 border-white rounded-full">
-                    <img
-                        src={avatarUrl || user.avatar}
-                        alt={user.name}
-                        className="w-32 h-32 rounded-full object-cover"
-                    />
-                </div>
+            {/* Profile Header Container */}
+            <div className="px-4 sm:px-6 relative">
+                {/* Enhanced Avatar with Multiple Fallbacks */}
+                <div className="absolute -top-20 left-4 sm:left-6">
+                    <div className="relative group w-32 h-32">
+                        {/* Avatar Container */}
+                        <div className="w-full h-full rounded-full border-[5px] border-white bg-white shadow-xl overflow-hidden flex items-center justify-center">
+                            {/* 1. Try uploaded avatar first */}
+                            {user.avatar ? (
+                                <img
+                                    src={user.avatar}
+                                    alt={user.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        // Will fall through to the gradient initial
+                                    }}
+                                />
+                            ) : null}
 
-                {/* Action Buttons */}
-                {/* on the action buttons if the username on the path is similar to the username of logged in user then there is no need for follow or following button */}
-                <div className="flex justify-between items-center pt-16">
-                    <div className="flex items-center gap-4">
-                        <h1 className="text-xl font-bold">{user.name}</h1>
+                            {/* 2. Fallback to gradient with initial */}
+                            {(!user.avatar || !user.avatar.startsWith('http')) && (
+                                <div
+                                    className={`w-full h-full flex items-center justify-center text-white text-5xl font-bold bg-gradient-to-br 
+              ${generateUserGradient(user.id)}`}
+                                >
+                                    {user.name.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Edit Pencil for current user */}
                         {loggedInUser?.username === user.username && (
-                            <span className="text-sm text-gray-500">You</span>
+                            <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-2 shadow-md border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                                <Pencil className="h-4 w-4 text-gray-700" />
+                            </div>
                         )}
                     </div>
+                </div>
+
+                {/* Profile Info */}
+                <div className="pt-24 pb-2 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                    <div>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+                            {loggedInUser?.username === user.username && (
+                                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">You</span>
+                            )}
+                        </div>
+                        <p className="text-gray-500 mt-1">@{user.username}</p>
+                    </div>
+
+                    {/* Follow Button - Enhanced Interaction */}
                     {loggedInUser?.username !== user.username && (
                         <button
                             onClick={toggleFollow}
-                            className={`px-4 py-1.5 rounded-full font-medium text-sm flex items-center gap-1 ${isFollowing
-                                ? "bg-white text-black border border-gray-300 hover:border-red-300 hover:text-red-500"
-                                : "bg-black text-white hover:bg-gray-800"
+                            className={`px-5 py-2 rounded-full font-medium text-sm flex items-center gap-2 transition-all duration-200 ${isFollowing
+                                ? "bg-white text-gray-800 border border-gray-300 hover:border-red-200 hover:text-red-500 shadow-sm"
+                                : "bg-black text-white hover:bg-gray-800 shadow-md"
                                 }`}
                             disabled={!user || !loggedInUser}
                         >
                             {isFollowing ? (
                                 <>
-                                    <Check className="w-4 h-4" />
-                                    Following
+                                    <Check className="h-4 w-4" />
+                                    <span>Following</span>
                                 </>
                             ) : (
-                                "Follow"
+                                <>
+                                    <UserPlus className="h-4 w-4" />
+                                    <span>Follow</span>
+                                </>
                             )}
                         </button>
                     )}
                 </div>
-            </div>
+                {/* PROFILE DETAILS SECTION HERE */}
+                <div className="mt-4 space-y-3">
+                    {user.bio && (
+                        <p className="text-gray-700 text-sm sm:text-base">
+                            {user.bio}
+                        </p>
+                    )}
 
-            {/* Profile Info */}
-            <div className="px-4 pt-16 pb-4">
-                <div className="flex items-center">
-                    <h1 className="text-xl font-bold">{user.name}</h1>
-                </div>
-                <p className="text-gray-500">@{user.username}</p>
-
-                {user.bio && <p className="my-3">{user.bio}</p>}
-
-                <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                    <div className="flex items-center">
-                        <CalendarDays size={16} className="mr-1" />
-                        <span>
-                            Joined {new Date(Number(user.createdAt)).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                            })}
-                        </span>
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center">
+                            <CalendarDays size={16} className="mr-1.5" />
+                            <span>
+                                Joined {new Date(Number(user.createdAt)).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                })}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <div className="flex gap-5">
-                    <Link
-                        to={`/profile/${user.username}/following`}
-                        className="hover:underline cursor-pointer"
-                    >
-                        <span className="font-bold">{user.following.length.toLocaleString()}</span>
-                        <span className="text-gray-500"> Following</span>
-                    </Link>
-                    <Link
-                        to={`/profile/${user.username}/followers`}
-                        className="hover:underline cursor-pointer"
-                    >
-                        <span className="font-bold">{user.followers.length.toLocaleString()}</span>
-                        <span className="text-gray-500"> Followers</span>
-                    </Link>
+                    <div className="flex gap-5 pt-2">
+                        <Link
+                            to={`/profile/${user.username}/following`}
+                            className="hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                            <span className="font-bold text-gray-900">{user.following.length.toLocaleString()}</span>
+                            <span className="text-gray-500">Following</span>
+                        </Link>
+                        <Link
+                            to={`/profile/${user.username}/followers`}
+                            className="hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                            <span className="font-bold text-gray-900">{user.followers.length.toLocaleString()}</span>
+                            <span className="text-gray-500">Followers</span>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
