@@ -117,6 +117,12 @@ export const resolvers = {
                 const user = await prisma.user.findUnique({
                     where: { username },
                     include: {
+                        followers: {
+                            select: { id: true }
+                        },
+                        following: {
+                            select: { id: true }
+                        },
                         posts: {
                             orderBy: { createdAt: 'desc' },
                             include: {
@@ -137,8 +143,8 @@ export const resolvers = {
 
                 return {
                     ...user,
-                    followers: user._count.followers || [],
-                    following: user._count.following || [],
+                    followers: user.followers || [],
+                    following: user.following || [],
                     followersCount: user._count.followers,
                     followingCount: user._count.following,
                     posts: user.posts.map(post => ({

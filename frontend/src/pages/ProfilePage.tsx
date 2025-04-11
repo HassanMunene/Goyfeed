@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Check } from "lucide-react";
 import { createAvatar } from '@dicebear/core';
 import { identicon } from '@dicebear/collection';
+import { Link } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -110,20 +111,12 @@ const ProfilePage = () => {
     }, [user]);
 
     const toggleFollow = async () => {
-        if (!user) return;
+        if (!user || !loggedInUser) return;
 
         try {
-            const mutation = isFollowing ? `
-                mutation Unfollow($userId: ID!) {
-                    unfollow(userId: $userId)
-                }
-            ` : `
-                mutation Follow($userId: ID!) {
-                    follow(userId: $userId) {
-                        id
-                    }
-                }
-            `;
+            const mutation = isFollowing
+                ? `mutation { unfollowUser(userId: "${user.id}") { success } }`
+                : `mutation { followUser(userId: "${user.id}") { success } }`;
 
             const response = await fetch(graphqlEndpoint, {
                 method: "POST",
@@ -131,10 +124,7 @@ const ProfilePage = () => {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
-                body: JSON.stringify({
-                    query: mutation,
-                    variables: { userId: user.id },
-                }),
+                body: JSON.stringify({ query: mutation }),
             });
 
             const result = await response.json();
@@ -143,15 +133,34 @@ const ProfilePage = () => {
                 throw new Error(result.errors[0].message);
             }
 
+            // Update the follow status and count
             setIsFollowing(!isFollowing);
-            setUser(prev => prev ? {
-                ...prev,
-                followersCount: isFollowing ? prev.followers.length - 1 : prev.followers.length + 1
-            } : null);
+            setUser(prev => {
+                if (!prev) return null;
+
+                const newFollowers = isFollowing
+                    ? prev.followers.filter(f => f.id !== loggedInUser.id)
+                    : [...prev.followers, { id: loggedInUser.id }];
+
+                return {
+                    ...prev,
+                    followers: newFollowers
+                };
+            });
+
         } catch (err) {
             console.error("Failed to toggle follow:", err);
+            // Optionally show error to user
         }
     };
+
+    // Add this useEffect to initialize follow status
+    useEffect(() => {
+        if (user && loggedInUser) {
+            const isFollowing = user.followers.some(f => f.id === loggedInUser.id);
+            setIsFollowing(isFollowing);
+        }
+    }, [user, loggedInUser]);
 
     if (loading) return (
         <div className="flex justify-center items-center h-screen">
@@ -196,12 +205,20 @@ const ProfilePage = () => {
                     {loggedInUser?.username !== user.username && (
                         <button
                             onClick={toggleFollow}
-                            className={`px-4 py-1.5 rounded-full font-bold ${isFollowing
+                            className={`px-4 py-1.5 rounded-full font-medium text-sm flex items-center gap-1 ${isFollowing
                                 ? "bg-white text-black border border-gray-300 hover:border-red-300 hover:text-red-500"
                                 : "bg-black text-white hover:bg-gray-800"
                                 }`}
+                            disabled={!user || !loggedInUser}
                         >
-                            {isFollowing ? "Following" : "Follow"}
+                            {isFollowing ? (
+                                <>
+                                    <Check className="w-4 h-4" />
+                                    Following
+                                </>
+                            ) : (
+                                "Follow"
+                            )}
                         </button>
                     )}
                 </div>
@@ -230,14 +247,20 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="flex gap-5">
-                    <div className="hover:underline cursor-pointer">
+                    <Link
+                        to={`/profile/${user.username}/following`}
+                        className="hover:underline cursor-pointer"
+                    >
                         <span className="font-bold">{user.following.length.toLocaleString()}</span>
                         <span className="text-gray-500"> Following</span>
-                    </div>
-                    <div className="hover:underline cursor-pointer">
+                    </Link>
+                    <Link
+                        to={`/profile/${user.username}/followers`}
+                        className="hover:underline cursor-pointer"
+                    >
                         <span className="font-bold">{user.followers.length.toLocaleString()}</span>
                         <span className="text-gray-500"> Followers</span>
-                    </div>
+                    </Link>
                 </div>
             </div>
 
