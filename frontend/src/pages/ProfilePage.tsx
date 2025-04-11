@@ -32,7 +32,6 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isFollowing, setIsFollowing] = useState(false);
-    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     const { user: loggedInUser } = useAuth();
 
@@ -102,13 +101,6 @@ const ProfilePage = () => {
             fetchUserProfile();
         }
     }, [username]);
-
-    useEffect(() => {
-        if (user) {
-            const avatarUrl = createAvatar(identicon, { seed: user.name }).toDataUri();
-            setAvatarUrl(avatarUrl);
-        }
-    }, [user]);
 
     const toggleFollow = async () => {
         if (!user || !loggedInUser) return;
