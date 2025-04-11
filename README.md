@@ -55,7 +55,7 @@ graph TD
     style A fill:#61DAFB,stroke:#333
     style B fill:#000000,stroke:#333
     style C fill:#336791,stroke:#333
-
+```
 
 # GoyFeed - Complete Setup Guide
 
