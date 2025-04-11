@@ -17,10 +17,6 @@ A full-stack social media application with real-time features, built with cuttin
  
 # GoyFeed Architecture Overview
 
-<div align="center">
-  <img src="https://i.imgur.com/JqQXdQm.png" alt="Architecture Diagram" width="600">
-</div>
-
 ## 🌐 Tech Stack
 
 ### **Frontend**
@@ -40,10 +36,10 @@ A full-stack social media application with real-time features, built with cuttin
 
 ## 🏗 System Architecture
 
+## System Design
 ```mermaid
-flowchart LR
+graph LR
     A[React Frontend] -->|GraphQL| B[Express Gateway]
     B -->|Prisma Client| C[(PostgreSQL)]
-    style A fill:#61DAFB,stroke:#333
-    style B fill:#000000,stroke:#333
-    style C fill:#4169E1,stroke:#333
+    style A fill:#61dafb,stroke:#333
+    style B fill:#90c53f,stroke:#333
