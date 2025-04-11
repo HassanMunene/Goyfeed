@@ -143,7 +143,7 @@ const ExplorePage = () => {
 										<span>{post.likes.length} likes</span>
 										<span className="mx-2">•</span>
 										<span>
-											{new Date(Number(post.createdAt)).toLocaleDateString('en-US', {
+											{new Date(post.createdAt).toLocaleDateString('en-US', {
 												month: 'short',
 												day: 'numeric'
 											})}
