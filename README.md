@@ -227,20 +227,12 @@ Special thanks to:
 
 ---
 
-## 📚 Resources
-
-- [Project Wiki](https://github.com/HassanMunene/Goyfeed/wiki)
-- [API Documentation](https://github.com/HassanMunene/Goyfeed/docs/api.md)
-- [Design System](https://github.com/HassanMunene/Goyfeed/docs/design-system.md)
-
----
 
 ## 📬 Contact
 
 For support or questions:
-- [GitHub Issues](https://github.com/HassanMunene/Goyfeed/issues)
-- Email: [your-email@example.com](mailto:your-email@example.com)
-- Twitter: [@yourhandle](https://twitter.com/yourhandle)
+- [GitHub Issues](https://github.com/HassanMunene/)
+- Email: [awanzihassan6@gmail.com@](mailto:awanzihassan6@gmail.com)
 
 ---
 
