@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UserPlus, Search, Heart } from "lucide-react";
+import { UserPlus, Search, Heart, Check } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -8,6 +8,7 @@ interface User {
 	id: string;
 	name: string;
 	username: string;
+	isFollowed: boolean;
 }
 
 interface Post {
@@ -43,6 +44,7 @@ const ExplorePage = () => {
                 			id
                 			name
                 			username
+							isFollowed
               			}
             		}`
 				})
@@ -93,6 +95,41 @@ const ExplorePage = () => {
 		fetchUsers();
 		fetchPopularPosts();
 	}, []);
+
+	const handleFollow = async (userId: string, isCurrentlyFollowed: boolean) => {
+		try {
+			const mutation = isCurrentlyFollowed
+				? `mutation { unfollowUser(userId: "${userId}") { success } }`
+				: `mutation { followUser(userId: "${userId}") { success } }`;
+	
+			const response = await fetch(graphqlEndpoint, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem("token")}`
+				},
+				body: JSON.stringify({ query: mutation })
+			});
+	
+			const result = await response.json();
+	
+			if (result.errors) {
+				throw new Error(result.errors[0].message);
+			}
+	
+			// Optimistic UI update
+			setUsers(prevUsers =>
+				prevUsers.map(u =>
+					u.id === userId
+						? { ...u, isFollowed: !isCurrentlyFollowed }
+						: u
+				)
+			);
+		} catch (err) {
+			console.error("Follow operation failed:", err);
+			// Optionally show error to user
+		}
+	};
 
 	// Exclude the logged-in user from the list of suggested users
 	const filteredUsers = users
@@ -185,8 +222,22 @@ const ExplorePage = () => {
 										<p className="text-xs text-gray-500">@{user.username}</p>
 									</div>
 								</div>
-								<button className="text-sm bg-black text-white px-3 py-1 rounded-full hover:opacity-90">
-									Follow
+								{/* Updated follow button */}
+								<button
+									onClick={() => handleFollow(user.id, user.isFollowed)}
+									className={`text-sm px-3 py-1 rounded-full flex items-center gap-1 ${user.isFollowed
+											? "bg-gray-200 text-gray-800 hover:bg-gray-300"
+											: "bg-black text-white hover:opacity-90"
+										}`}
+								>
+									{user.isFollowed ? (
+										<>
+											<Check className="w-4 h-4" />
+											Following
+										</>
+									) : (
+										"Follow"
+									)}
 								</button>
 							</div>
 						))}

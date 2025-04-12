@@ -28,6 +28,7 @@ export const typeDefs = gql`
         following: [Follow!]!
         createdAt: String!
         updatedAt: String!
+        isFollowed: Boolean
     }
     
     type Post {

@@ -48,16 +48,40 @@ export const resolvers = {
             if (!userId) throw new Error('Not authenticated');
             return prisma.user.findUnique({ where: { id: userId } });
         },
-        getAllUsers: async () => {
+        getAllUsers: async (_: unknown, __: unknown, { userId }: Context) => {
             try {
-                return await prisma.user.findMany({
+                const users = await prisma.user.findMany({
                     select: {
                         id: true,
                         name: true,
                         username: true,
                         email: true, // optional
-                    }
+                        following: {
+                            where: {
+                                followerId: userId
+                            },
+                            select: {
+                                id: true
+                            },
+                            take: 1
+                        }
+                    },
+                    orderBy: {
+                        name: 'asc'
+                    },
                 });
+                // Log the fetched users
+                console.log('Fetched users on nananannaget all users:', JSON.stringify(users, null, 2));
+                console.log("yoyoyoyoooo", users[0].following);
+                const followedUserIds = users.filter(user => user.following.length > 0).map(user => user.id);
+                console.log("followedUserIds", followedUserIds);
+                // Now when returning the users, we can add the isFollowed property to each user
+                // Check if the user is followed by the current user
+                return users.map(user => ({
+                    ...user,
+                    isFollowed: user.following.length > 0
+                }));
+
             } catch (error) {
                 console.error('Error fetching users:', error);
                 throw new Error('Failed to fetch users');
