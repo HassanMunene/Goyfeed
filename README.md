@@ -7,6 +7,8 @@ A full-stack social media application with real-time engagement features, built 
 
 ---
 
+> ⚠️ **Note:** The Application may respond slowly on initial requests due to Render's free tier, which spins down inactive instances. The first request may take 30–60 seconds, but subsequent requests will be faster while the instance remains active.
+
 
 ## 🔍 Navigation
 - [✨ Key Features](#-key-features)
