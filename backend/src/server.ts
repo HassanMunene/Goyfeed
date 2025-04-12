@@ -33,7 +33,7 @@ app.use(cors());
 
 
 // parse incoming json requests
-app.use(express.json());
+app.use(express.json({ limit: "500kb" }));
 
 // will take a token as an argument, verify the user based on the JWT token. We are assuming
 // the token is provided in the form of Bearer <token>. we will strip the Bearer and remain with actual token
