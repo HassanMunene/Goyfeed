@@ -113,15 +113,27 @@ export const resolvers = {
             }
         },
         getUser: async (_: unknown, { username }: { username: string }) => {
+            if (!username) throw new Error('Username is required');
+
+            console.log('Fetching user with username:', username);
+
             try {
                 const user = await prisma.user.findUnique({
                     where: { username },
                     include: {
                         followers: {
-                            select: { id: true }
+                            include: {
+                                follower: {
+                                    select: { id: true, username: true, name: true, avatar: true }
+                                }
+                            }
                         },
                         following: {
-                            select: { id: true }
+                            include: {
+                                following: {
+                                    select: { id: true, username: true, name: true, avatar: true }
+                                }
+                            }
                         },
                         posts: {
                             orderBy: { createdAt: 'desc' },
@@ -143,10 +155,16 @@ export const resolvers = {
 
                 return {
                     ...user,
-                    followers: user.followers || [],
-                    following: user.following || [],
-                    followersCount: user._count.followers,
-                    followingCount: user._count.following,
+                    followers: user.following.filter(follow => follow.followingId === user.id).map(follow => ({
+                        id: follow.followerId,
+                    })) || [],
+
+                    // Extract following (users this user follows)
+                    following: user.following.filter(follow => follow.followerId === user.id).map(follow => follow.following) || [],
+
+                    // Calculate counts
+                    followersCount: user.following.filter(f => f.followingId === user.id).length,
+                    followingCount: user.following.filter(f => f.followerId === user.id).length,
                     posts: user.posts.map(post => ({
                         ...post,
                         likesCount: post.likes.length,
@@ -388,21 +406,66 @@ export const resolvers = {
             return true;
         },
         followUser: async (_: unknown, { userId }: { userId: string }, { userId: currentUserId }: Context) => {
+            // log data to say received details to follow user
+            console.log('Received the user the currently logged in user should follow:', userId);
+            // log the name of the user whose userid is userId
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { name: true }
+            });
+            console.log('User to follow:', user);
             try {
+                // 1. Authentication check
                 if (!currentUserId) throw new Error('Not authenticated');
-                if (currentUserId === userId) throw new Error('Cannot follow yourself');
 
-                const follow = await prisma.follow.create({
-                    data: {
+                // 2. Explicitly prevent self-following
+                if (currentUserId === userId) {
+                    throw new Error('Cannot follow yourself');
+                }
+
+                // 3. Check if user exists
+                const userToFollow = await prisma.user.findUnique({
+                    where: { id: userId }
+                });
+                if (!userToFollow) throw new Error('User not found');
+
+                // 4. Check for existing follow
+                const existingFollow = await prisma.follow.findFirst({
+                    where: {
                         followerId: currentUserId,
                         followingId: userId
                     }
                 });
+                if (existingFollow) throw new Error('Already following this user');
 
-                return { success: true, message: 'Followed successfully' };
+                // 5. Create the follow and return the details so we can log and see the result
+                const follow = await prisma.follow.create({
+                    data: {
+                        followerId: currentUserId,
+                        followingId: userId
+                    },
+                    include: {
+                        follower: {
+                            select: {
+                                id: true,
+                                name: true,
+                                username: true
+                            }
+                        },
+                        following: {
+                            select: {
+                                id: true,
+                                name: true,
+                                username: true
+                            }
+                        }
+                    }
+                });
+                console.log('Follow created:', follow);
+                return { success: true };
             } catch (error) {
-                console.log(error);
-                throw new Error('Failed to follow user');
+                console.error('Follow error:', error);
+                throw new Error(error instanceof Error ? error.message : 'Failed to follow user');
             }
         },
         unfollowUser: async (_: any, { userId }: { userId: string }, { userId: currentUserId }: Context) => {

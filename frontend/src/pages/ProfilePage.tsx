@@ -240,10 +240,9 @@ const ProfilePage = () => {
                         <p className="text-gray-500 mt-1">@{user.username}</p>
                     </div>
 
-                    {/* Follow Button - Enhanced Interaction */}
+                    {/* Follow Button */}
                     {loggedInUser?.username !== user.username && (
-                        <button
-                            onClick={toggleFollow}
+                        <button onClick={toggleFollow}
                             className={`px-5 py-2 rounded-full font-medium text-sm flex items-center gap-2 transition-all duration-200 ${isFollowing
                                 ? "bg-white text-gray-800 border border-gray-300 hover:border-red-200 hover:text-red-500 shadow-sm"
                                 : "bg-black text-white hover:bg-gray-800 shadow-md"
