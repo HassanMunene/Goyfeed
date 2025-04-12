@@ -7,13 +7,26 @@ A full-stack social media application with real-time engagement features, built 
 
 ---
 
+
+## 🔍 Navigation
+- [✨ Key Features](#-key-features)
+- [🏗 Architecture Overview](#-architecture-overview)
+- [🚀 Deployment](#-deployment)
+- [🏗 Setup Guide](#-setup-guide)
+- [⚖️ Assumptions & Tradeoffs](#️-assumptions--tradeoffs)
+- [🛠 Troubleshooting](#-troubleshooting)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [📚 Resources](#-resources)
+- [📬 Contact](#-contact)
+- [📜 License](#-license)
+
 ## ✨ Key Features
 
 ### Core Functionality
-✅ **Secure Authentication** - JWT with refresh tokens  
+✅ **Secure Authentication** - Using jwt tokens to auntenticate users  
 ✅ **Rich Content Creation** - Posts with text, images, and media  
-✅ **Social Networking** - Follow/unfollow system with privacy controls  
-✅ **Real-time Interactions** - Instant like notifications  
+✅ **Social Networking** - Follow/unfollow system.  
+✅ **Real-time Interactions** - Instant like notifications.
 ✅ **Optimistic UI** - Immediate feedback on user actions  
 
 ### Technical Highlights
@@ -57,6 +70,27 @@ graph TD
     style B fill:#000000,stroke:#333
     style C fill:#336791,stroke:#333
 ```
+
+## 🚀 Deployment
+
+The application is deployed across multiple platforms:
+
+### 🔧 Frontend (Vercel)
+- Hosted on [Vercel](https://vercel.com/)
+- Automatic CI/CD from the `main` branch
+- **Live URL:** [https://goyfeed.vercel.app](https://goyfeed.vercel.app)
+
+### 🛠 Backend (Render)
+- Node.js server deployed on Render (free tier)
+- **GraphQL Endpoint:** [https://goyfeed.onrender.com/graphql](https://goyfeed.onrender.com/graphql)
+- Connected to a PostgreSQL database (also on Render)
+
+> ⚠️ **Note:** The backend may respond slowly on initial requests due to Render's free tier, which spins down inactive instances. The first request may take 30–60 seconds, but subsequent requests will be faster while the instance remains active.
+
+### 🗄 Database (Render)
+- PostgreSQL instance hosted on Render
+- Connected to the backend server
+
 
 # GoyFeed - Complete Setup Guide
 
